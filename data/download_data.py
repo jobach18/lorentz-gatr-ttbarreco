@@ -8,7 +8,7 @@ base_url = "https://www.thphys.uni-heidelberg.de/~plehn/data"
 files_to_collect = ["amplitudes", "toptagging", "event-generation"]
 
 download = {"amplitudes": True,
-            "toptagging": False,
+            "toptagging": True,
             "event-generation": False}
 urls = {"amplitudes": "amplitudes.hdf5",
         "toptagging": "toptagging_full.npz",

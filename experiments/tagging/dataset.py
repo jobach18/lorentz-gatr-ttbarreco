@@ -60,8 +60,13 @@ class TopTaggingDataset(TaggingDataset):
             Effectively a change of units to make the network entries O(1)
         """
         data = np.load(filename)
-        kinematics = data[f"kinematics_{mode}"]
-        labels = data[f"labels_{mode}"]
+        print(f"the loaded data is {data}")
+        print(f'the kinematics is {data[f"kinematics_{mode}"]}')
+        print(f'the kinematics shape is {data[f"kinematics_{mode}"].shape}')
+        print(f'the labels is {data[f"labels_{mode}"]}')
+
+        kinematics = data[f"kinematics_{mode}"][:100]
+        labels = data[f"labels_{mode}"][:100]
 
         # preprocessing
         if self.rescale_data:

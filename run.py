@@ -10,7 +10,7 @@ from experiments.tagging.jetclassexperiment import JetClassTaggingExperiment
 from experiments.tagging.finetuneexperiment import TopTaggingFineTuneExperiment
 
 
-@hydra.main(config_path="config", config_name="amplitudes", version_base=None)
+@hydra.main(config_path="config", config_name="toptagging", version_base=None)
 def main(cfg):
     if cfg.exp_type == "amplitudes":
         exp = AmplitudeExperiment(cfg)
