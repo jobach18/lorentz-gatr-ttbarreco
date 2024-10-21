@@ -1,38 +1,28 @@
 import torch
 
 
-class EventDataset(torch.utils.data.Dataset):
-    def __init__(self, events, dtype):
-        self.events = [
-            torch.tensor(events_onedataset, dtype=dtype) for events_onedataset in events
+class AmplitudeDataset(torch.utils.data.Dataset):
+    def __init__(self, particles, amplitudes, dtype):
+        self.particles = [
+            torch.tensor(particles_onedataset, dtype=dtype)
+            for particles_onedataset in particles
         ]
-        self.events_eff = [e.clone() for e in self.events]
-        self.lens = [len(events_onedataset) for events_onedataset in self.events]
+        self.amplitudes = [
+            torch.tensor(amplitudes_onedataset, dtype=dtype)
+            for amplitudes_onedataset in amplitudes
+        ]
+
+        # reduce the effectively used dataset to the length of the smallest dataset
+        # (pure convenience, could use more data at the cost of more code)
+        self.len = min(
+            [len(particles_onedataset) for particles_onedataset in self.particles]
+        )
 
     def __len__(self):
-        return max(self.lens)
+        return self.len
 
     def __getitem__(self, idx):
-        # if sub-dataset has less than max(self.lens) events,
-        # some events will be sampled more than one time
-        # Note that the model sees events with smaller idx more often
-        return [events[idx % _len] for events, _len in zip(self.events_eff, self.lens)]
-
-
-class EventDataLoader(torch.utils.data.DataLoader):
-    def __init__(self, dataset, batch_size, shuffle=True, drop_last=False):
-        super().__init__(
-            dataset, batch_size=batch_size, shuffle=shuffle, drop_last=drop_last
-        )
-        self.shuffle = shuffle
-
-    def __iter__(self):
-        if self.shuffle:
-            # manually shuffle the dataset after each epoch
-            # this is necessary to avoid having small-idx events more often in the custom __getitem__ method
-            perms = [torch.randperm(len(events)) for events in self.dataset.events]
-            self.dataset.events_eff = [
-                events[perm] for events, perm in zip(self.dataset.events, perms)
-            ]
-
-        return super().__iter__()
+        return [
+            (particles[idx], amplitudes[idx])
+            for (particles, amplitudes) in zip(self.particles, self.amplitudes)
+        ]
