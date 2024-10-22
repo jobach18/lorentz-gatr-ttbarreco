@@ -148,6 +148,20 @@ class AmplitudeExperiment(BaseExperiment):
                 particles_prepd = particles / particles.std()
 
             # collect everything
+            LOGGER.info(
+                    f"the particles are of shape {particles.shape}"
+                    )
+            LOGGER.info(
+                    f"the amplitudes are of shape {amplitudes.shape}"
+                    )
+            LOGGER.info("-----------after Preprocess---------------")
+            LOGGER.info(
+                    f"the particles are of shape {particles_prepd.shape}"
+                    )
+            LOGGER.info(
+                    f"the amplitudes are of shape {amplitudes_prepd.shape}"
+                    )
+            LOGGER.info("-----------after Preprocess---------------")
             self.particles.append(particles)
             self.amplitudes.append(amplitudes)
             self.particles_prepd.append(particles_prepd)

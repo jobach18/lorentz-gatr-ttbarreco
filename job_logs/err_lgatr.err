@@ -1,35 +1,30 @@
 CUDA 11.8 loaded
 /beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/numba/core/decorators.py:262: NumbaDeprecationWarning: numba.generated_jit is deprecated. Please see the documentation at: https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-generated-jit for more information and advice on a suitable replacement.
   warnings.warn(msg, NumbaDeprecationWarning)
-/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'amplitudes': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'toptagging': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
   warnings.warn(msg, UserWarning)
-INFO  [lorentz-gatr] Set experiment amp_local_debug with id 1
-[2024-10-21 12:37:40 I] Creating new experiment amp_local_debug/GATr_0318
-[2024-10-21 12:37:40 D] Saving source to ./runs/amp_local_debug/GATr_0318/source.zip
-[2024-10-21 12:37:41 I] Set experiment amp_local_debug with id 1
-[2024-10-21 12:37:41 I] Using device cuda
-[2024-10-21 12:37:41 I] ### Starting experiment amp_local_debug/GATr_0318 (id=1) ###
-[2024-10-21 12:37:44 I] Instantiated model GATr with 186651 learnable parameters
-[2024-10-21 12:37:44 I] Not using EMA
-[2024-10-21 12:37:44 I] Working with dataset ['zgg'] and type_token=[[0, 0, 1, 2, 2]]
-[2024-10-21 12:37:44 I] Loaded data with shape (1000000, 21) from data/zgg.npy
-[2024-10-21 12:37:44 I] Reducing the size of the dataset from 1000000 to 10000
-[2024-10-21 12:37:44 I] Constructed dataloaders with train_test_val=[0.4, 0.5, 0.1], train_batches=16, test_batches=5, val_batches=1, batch_size=256 (training), 1024 (evaluation)
-[2024-10-21 12:37:44 I] Starting to train for 20 iterations = 1.2 epochs on a dataset with 16 batches using early stopping with patience 100 while validating every 100 iterations
+INFO  [lorentz-gatr] Set experiment topt_local_debug with id 1
+[2024-10-21 15:12:13 I] Creating new experiment topt_local_debug/GATr_6232
+[2024-10-21 15:12:13 D] Saving source to ./runs/topt_local_debug/GATr_6232/source.zip
+[2024-10-21 15:12:14 I] Set experiment topt_local_debug with id 1
+[2024-10-21 15:12:14 I] Using device cuda
+[2024-10-21 15:12:14 I] ### Starting experiment topt_local_debug/GATr_6232 (id=1) ###
+[2024-10-21 15:12:17 W] Using training.force_xformers=False, this will slow down the network by a factor of 5-10.
+[2024-10-21 15:12:18 I] Instantiated model GATr with 65995 learnable parameters
+[2024-10-21 15:12:18 I] Not using EMA
+[2024-10-21 15:12:18 I] Creating TopTaggingDataset from data/toptagging_mini.npz
+[2024-10-21 15:13:38 I] Finished creating datasets after 79.95 s = 1.33 min
+[2024-10-21 15:13:38 I] Constructed dataloaders with train_batches=1, test_batches=1, val_batches=1, batch_size=128 (training), 128 (evaluation)
+[2024-10-21 15:13:38 I] Starting to train for 10 iterations = 10.0 epochs on a dataset with 1 batches using early stopping with patience 100 while validating every 5000 iterations
 /beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/numba/core/decorators.py:262: NumbaDeprecationWarning: numba.generated_jit is deprecated. Please see the documentation at: https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-generated-jit for more information and advice on a suitable replacement.
   warnings.warn(msg, NumbaDeprecationWarning)
-[2024-10-21 12:37:49 I] Finished iteration 1 after 5.13s, training time estimate: 1.71min = 0.03h
-[2024-10-21 12:37:52 I] Finished training for 19 iterations = 1.2 epochs after 0.12min = 0.00h
-[2024-10-21 12:37:52 W] Cannot load best model (epoch 0) from ./runs/amp_local_debug/GATr_0318/models/model_run0_it0.pt
-[2024-10-21 12:37:52 I] ### Starting to evaluate model on train dataset ###
-[2024-10-21 12:37:53 I] Evaluation time: 219.65s for 1M events using batchsize 1024
-[2024-10-21 12:37:53 I] rate of events in delta interval on zgg train dataset:	['0.0008 (0.001)', '0.0060 (0.01)', '0.0633 (0.1)']
-[2024-10-21 12:37:53 I] ### Starting to evaluate model on val dataset ###
-[2024-10-21 12:37:53 I] Evaluation time: 48.72s for 1M events using batchsize 1024
-[2024-10-21 12:37:53 I] rate of events in delta interval on zgg val dataset:	['0.0000 (0.001)', '0.0050 (0.01)', '0.0570 (0.1)']
-[2024-10-21 12:37:53 I] ### Starting to evaluate model on test dataset ###
-[2024-10-21 12:37:53 I] Evaluation time: 48.10s for 1M events using batchsize 1024
-[2024-10-21 12:37:53 I] rate of events in delta interval on zgg test dataset:	['0.0012 (0.001)', '0.0058 (0.01)', '0.0566 (0.1)']
-[2024-10-21 12:37:53 I] Creating plots in ./runs/amp_local_debug/GATr_0318/plots_0
-[2024-10-21 12:38:21 I] GPU RAM information: max_used = 0.194 GB, max_total = 17.1 GB
-[2024-10-21 12:38:21 I] Finished experiment amp_local_debug/GATr_0318 after 0.66min = 0.01h
+[2024-10-21 15:13:44 I] Finished iteration 1 after 6.12s, training time estimate: 1.02min = 0.02h
+[2024-10-21 15:13:46 I] Finished training for 9 iterations = 9.0 epochs after 0.14min = 0.00h
+[2024-10-21 15:13:46 W] Cannot load best model (epoch 0) from ./runs/topt_local_debug/GATr_6232/models/model_run0_it0.pt
+[2024-10-21 15:13:46 I] ### Starting to evaluate model on test dataset with 100 elements, batchsize 128 ###
+[2024-10-21 15:13:47 I] Accuracy on test dataset: 0.6000
+[2024-10-21 15:13:47 I] AUC score on test dataset: 0.7021
+[2024-10-21 15:13:47 I] Rejection rate test dataset: 6 (epsS=0.3), 4 (epsS=0.5), 2
+[2024-10-21 15:13:47 I] Creating plots in ./runs/topt_local_debug/GATr_6232/plots_0
+[2024-10-21 15:13:51 I] GPU RAM information: max_used = 3.29 GB, max_total = 17.1 GB
+[2024-10-21 15:13:51 I] Finished experiment topt_local_debug/GATr_6232 after 1.61min = 0.03h
