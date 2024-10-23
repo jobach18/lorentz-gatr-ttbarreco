@@ -8,8 +8,7 @@ from omegaconf import open_dict
 from sklearn.metrics import roc_curve, roc_auc_score, accuracy_score
 
 from experiments.base_experiment import BaseExperiment
-from experiments.tagging.dataset import TopTaggingDataset
-from experiments.tagging.dataset import QGTaggingDataset
+from experiments.top_reco.dataset import TopRecoDataset
 from experiments.tagging.plots import plot_mixer
 from experiments.tagging.embedding import embed_tagging_data_into_ga
 from experiments.logger import LOGGER
@@ -20,13 +19,13 @@ MODEL_TITLE_DICT = {"GATr": "GATr"}
 UNITS = 40  # We use units of 40 GeV for all tagging experiments
 
 
-class TaggingExperiment(BaseExperiment):
+class RecoExperiment(BaseExperiment):
     """
-    Base class for jet tagging experiments, focusing on binary classification
+    Base class for Top Reco 
     """
 
     def _init_loss(self):
-        self.loss = torch.nn.BCEWithLogitsLoss()
+        self.loss = torch.nn.MSELoss()
 
     def init_physics(self):
         if not self.cfg.training.force_xformers:
@@ -36,16 +35,6 @@ class TaggingExperiment(BaseExperiment):
 
         # dynamically extend dict
         with open_dict(self.cfg):
-            # global token?
-            self.cfg.data.include_global_token = not self.cfg.model.mean_aggregation
-            self.cfg.model.net.in_mv_channels = 1
-
-            # extra scalar channels
-            if self.cfg.data.add_pt:
-                self.cfg.model.net.in_s_channels += 1
-            if self.cfg.data.include_global_token:
-                self.cfg.model.net.in_s_channels += self.cfg.data.num_global_tokens
-
             # extra mv channels for beam_reference and time_reference
             if not self.cfg.data.beam_token:
                 if self.cfg.data.beam_reference is not None:
@@ -70,16 +59,13 @@ class TaggingExperiment(BaseExperiment):
     def init_data(self):
         raise NotImplementedError
 
-    def _init_data(self, Dataset, data_path):
+    def _init_data(self, Dataset, data_path, data_path_val):
         LOGGER.info(f"Creating {Dataset.__name__} from {data_path}")
         t0 = time.time()
-        kwargs = {"rescale_data": self.cfg.data.rescale_data}
-        self.data_train = Dataset(**kwargs)
-        self.data_test = Dataset(**kwargs)
-        self.data_val = Dataset(**kwargs)
-        self.data_train.load_data(data_path, "train", data_scale=UNITS)
-        self.data_test.load_data(data_path, "test", data_scale=UNITS)
-        self.data_val.load_data(data_path, "val", data_scale=UNITS)
+        self.data_train = Dataset()
+        self.data_val = Dataset()
+        self.data_train.load_data(data_path)
+        self.data_val.load_data(data_path_val)
         dt = time.time() - t0
         LOGGER.info(f"Finished creating datasets after {dt:.2f} s = {dt/60:.2f} min")
 
@@ -89,11 +75,6 @@ class TaggingExperiment(BaseExperiment):
             batch_size=self.cfg.training.batchsize,
             shuffle=True,
         )
-        self.test_loader = DataLoader(
-            dataset=self.data_test,
-            batch_size=self.cfg.evaluation.batchsize,
-            shuffle=False,
-        )
         self.val_loader = DataLoader(
             dataset=self.data_val,
             batch_size=self.cfg.evaluation.batchsize,
@@ -102,7 +83,7 @@ class TaggingExperiment(BaseExperiment):
 
         LOGGER.info(
             f"Constructed dataloaders with "
-            f"train_batches={len(self.train_loader)}, test_batches={len(self.test_loader)}, val_batches={len(self.val_loader)}, "
+            f"train_batches={len(self.train_loader)}, val_batches={len(self.val_loader)}, "
             f"batch_size={self.cfg.training.batchsize} (training), {self.cfg.evaluation.batchsize} (evaluation)"
         )
 
@@ -110,7 +91,6 @@ class TaggingExperiment(BaseExperiment):
         self.results = {}
         loader_dict = {
             "train": self.train_loader,
-            "test": self.test_loader,
             "val": self.val_loader,
         }
         for set_label in self.cfg.evaluation.eval_set:
@@ -129,83 +109,102 @@ class TaggingExperiment(BaseExperiment):
                     loader_dict[set_label], set_label, mode="eval"
                 )
 
-    def _evaluate_single(self, loader, title, mode, step=None):
-        assert mode in ["val", "eval"]
-        # re-initialize dataloader to make sure it is using the evaluation batchsize
-        # (makes a difference for trainloader)
-        loader = DataLoader(
-            dataset=loader.dataset,
-            batch_size=self.cfg.evaluation.batchsize,
-            shuffle=False,
-        )
-
-        if mode == "eval":
-            LOGGER.info(
-                f"### Starting to evaluate model on {title} dataset with "
-                f"{len(loader.dataset.data_list)} elements, batchsize {loader.batch_size} ###"
-            )
-        metrics = {}
-
-        # predictions
-        labels_true, labels_predict = [], []
+    def _evaluate_single(self, loader, title, step=None):
+        # compute predictions
+        # note: shuffle=True or False does not matter, because we take the predictions directly from the dataloader and not from the dataset
+        amplitudes_truth_prepd, amplitudes_pred_prepd = [
+            [] for _ in range(self.n_datasets)
+        ], [[] for _ in range(self.n_datasets)]
+        LOGGER.info(f"### Starting to evaluate model on {title} dataset ###")
         self.model.eval()
         if self.cfg.training.optimizer == "ScheduleFree":
             self.optimizer.eval()
-        with torch.no_grad():
-            for batch in loader:
-                y_pred, label = self._get_ypred_and_label(batch)
-                y_pred = torch.nn.functional.sigmoid(y_pred)
-                labels_true.append(label.cpu().float())
-                labels_predict.append(y_pred.cpu().float())
+        t0 = time.time()
+        for data in loader:
+            for idataset, data_onedataset in enumerate(data):
+                x, y = data_onedataset
+                x = x.unsqueeze(0)
+                pred = self.model(
+                    x.to(self.device)
+                )
 
-        labels_true, labels_predict = torch.cat(labels_true), torch.cat(labels_predict)
-        if mode == "eval":
-            metrics["labels_true"], metrics["labels_predict"] = (
-                labels_true,
-                labels_predict,
+                y_pred = pred[0, ..., 0]
+
+                amplitudes_pred_prepd[idataset].append(y_pred.cpu().float().numpy())
+                amplitudes_truth_prepd[idataset].append(
+                    y.flatten().cpu().float().numpy()
+                )
+        amplitudes_pred_prepd = [
+            np.concatenate(individual) for individual in amplitudes_pred_prepd
+        ]
+        amplitudes_truth_prepd = [
+            np.concatenate(individual) for individual in amplitudes_truth_prepd
+        ]
+        dt = (
+            (time.time() - t0)
+            * 1e6
+            / sum(arr.shape[0] for arr in amplitudes_truth_prepd)
+        )
+        LOGGER.info(
+            f"Evaluation time: {dt:.2f}s for 1M events "
+            f"using batchsize {self.cfg.evaluation.batchsize}"
+        )
+
+        results = {}
+        for idataset, dataset in enumerate(self.cfg.data.dataset):
+            amp_pred_prepd = amplitudes_pred_prepd[idataset]
+            amp_truth_prepd = amplitudes_truth_prepd[idataset]
+
+            # compute metrics over preprocessed amplitudes
+            mse_prepd = np.mean((amp_pred_prepd - amp_truth_prepd) ** 2)
+
+            # undo preprocessing
+            amp_truth = undo_preprocess_amplitude(
+                amp_truth_prepd, self.prepd_mean[idataset], self.prepd_std[idataset]
+            )
+            amp_pred = undo_preprocess_amplitude(
+                amp_pred_prepd, self.prepd_mean[idataset], self.prepd_std[idataset]
             )
 
-        # bce loss
-        metrics["loss"] = torch.nn.functional.binary_cross_entropy(
-            labels_predict, labels_true
-        ).item()
-        labels_true, labels_predict = labels_true.numpy(), labels_predict.numpy()
+            # compute metrics over actual amplitudes
+            mse = np.mean((amp_truth - amp_pred) ** 2)
 
-        # accuracy
-        metrics["accuracy"] = accuracy_score(labels_true, np.round(labels_predict))
-        if mode == "eval":
-            LOGGER.info(f"Accuracy on {title} dataset: {metrics['accuracy']:.4f}")
-
-        # roc (fpr = epsB, tpr = epsS)
-        fpr, tpr, th = roc_curve(labels_true, labels_predict)
-        if mode == "eval":
-            metrics["fpr"], metrics["tpr"] = fpr, tpr
-        metrics["auc"] = roc_auc_score(labels_true, labels_predict)
-        if mode == "eval":
-            LOGGER.info(f"AUC score on {title} dataset: {metrics['auc']:.4f}")
-
-        # 1/epsB at fixed epsS
-        def get_rej(epsS):
-            idx = np.argmin(np.abs(tpr - epsS))
-            return 1 / fpr[idx]
-
-        metrics["rej03"] = get_rej(0.3)
-        metrics["rej05"] = get_rej(0.5)
-        metrics["rej08"] = get_rej(0.8)
-        if mode == "eval":
+            delta = (amp_truth - amp_pred) / amp_truth
+            delta_maxs = [0.001, 0.01, 0.1]
+            delta_rates = []
+            for delta_max in delta_maxs:
+                rate = np.mean(
+                    (delta > -delta_max) * (delta < delta_max)
+                )  # fraction of events with -delta_max < delta < delta_max
+                delta_rates.append(rate)
             LOGGER.info(
-                f"Rejection rate {title} dataset: {metrics['rej03']:.0f} (epsS=0.3), "
-                f"{metrics['rej05']:.0f} (epsS=0.5), {metrics['rej08']:.0f}"
+                f"rate of events in delta interval on {dataset} {title} dataset:\t"
+                f"{[f'{delta_rates[i]:.4f} ({delta_maxs[i]})' for i in range(len(delta_maxs))]}"
             )
 
-        if self.cfg.use_mlflow:
-            for key, value in metrics.items():
-                if key in ["labels_true", "labels_predict", "fpr", "tpr"]:
-                    # do not log matrices
-                    continue
-                name = f"{mode}.{title}" if mode == "eval" else "val"
-                log_mlflow(f"{name}.{key}", value, step=step)
-        return metrics
+            # log to mlflow
+            if self.cfg.use_mlflow:
+                log_dict = {
+                    f"eval.{title}.{dataset}.mse": mse_prepd,
+                    f"eval.{title}.{dataset}.mse_raw": mse,
+                }
+                for key, value in log_dict.items():
+                    log_mlflow(key, value)
+
+            amp = {
+                "raw": {
+                    "truth": amp_truth,
+                    "prediction": amp_pred,
+                    "mse": mse,
+                },
+                "preprocessed": {
+                    "truth": amp_truth_prepd,
+                    "prediction": amp_pred_prepd,
+                    "mse": mse_prepd,
+                },
+            }
+            results[dataset] = amp
+        return results
 
     def plot(self):
         plot_path = os.path.join(self.cfg.run_dir, f"plots_{self.cfg.run_idx}")
@@ -274,30 +273,20 @@ class TopTaggingExperiment(TaggingExperiment):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         with open_dict(self.cfg):
-            self.cfg.data.num_global_tokens = 1
 
             # no fundamental scalar information available
             self.cfg.model.net.in_s_channels = 0
 
     def init_data(self):
         data_path = os.path.join(
-            self.cfg.data.data_dir, f"toptagging_{self.cfg.data.dataset}.npz"
+            self.cfg.data.data_dir, f"train_TTTo2L2Nu_train.npz"
         )
-        self._init_data(TopTaggingDataset, data_path)
-
-
-class QGTaggingExperiment(TaggingExperiment):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        with open_dict(self.cfg):
-            self.cfg.data.num_global_tokens = 1
-
-            # We add 6 scalar channels for the particle id features
-            # (charge, electron, muon, photon, charged hadron and neutral hadron)
-            self.cfg.model.net.in_s_channels = 6
-
-    def init_data(self):
-        data_path = os.path.join(
-            self.cfg.data.data_dir, f"qg_tagging_{self.cfg.data.dataset}.npz"
+        data_path_val = os.path.join(
+            self.cfg.data.data_dir, f"train_TTTo2L2Nu_val.npz"
         )
-        self._init_data(QGTaggingDataset, data_path)
+
+        self._init_data(TopRecoDataset, data_path, data_path_val)
+
+
+
+

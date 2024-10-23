@@ -43,8 +43,6 @@ class TopRecoDataset(RecoDataset):
     def load_data(
         self,
         filename,
-        mode,
-        data_scale,
         dtype=torch.float32,
     ):
         """
@@ -60,16 +58,13 @@ class TopRecoDataset(RecoDataset):
             Effectively a change of units to make the network entries O(1)
         """
         data = np.load(filename)
-        kinematics = data[f"kinematics_{mode}"]
-        pdgids = data[f'pdgids_{mode}']
-        targets = data[f"targets_{mode}"]
+        kinematics = data["x"]
+        targets = data["y"]
 
         # preprocessing
-        if self.rescale_data:
-            kinematics = kinematics / data_scale
 
         kinematics = torch.tensor(kinematics, dtype=dtype)
-        labels = torch.tensor(labels, dtype=torch.bool)
+        labels = torch.tensor(labels, dtype=dtype)
 
         # create list of torch_geometric.data.Data objects
         self.data_list = []

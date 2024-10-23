@@ -31,10 +31,6 @@ def embed_tagging_data_into_ga(fourmomenta, scalars, ptr, cfg_data):
     batchsize = len(ptr) - 1
     arange = torch.arange(batchsize, device=fourmomenta.device)
 
-    # add pt to scalars
-    if cfg_data.add_pt:
-        pt = get_pt(fourmomenta).unsqueeze(-1)
-        scalars = torch.cat((scalars, pt), dim=-1)
 
     # embed fourmomenta into multivectors
     multivectors = embed_vector(fourmomenta)

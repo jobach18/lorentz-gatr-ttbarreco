@@ -36,18 +36,16 @@ def xformers_sa_mask(batch, materialize=False):
 
 class RecoGATrWrapper(nn.Module):
     """
-    L-GATr for tagging
+    L-GATr for top quark system reco
     """
 
     def __init__(
         self,
         net,
-        mean_aggregation=False,
         force_xformers=True,
     ):
         super().__init__()
         self.net = net
-        self.aggregation = MeanAggregation() if mean_aggregation else None
         self.force_xformers = force_xformers
 
     def forward(self, embedding):
@@ -60,16 +58,10 @@ class RecoGATrWrapper(nn.Module):
         )
         logits = self.extract_from_ga(
             multivector_outputs,
-            scalar_outputs,
-            embedding["batch"],
         )
 
         return logits
 
-    def extract_from_ga(self, multivector, scalars, batch, is_global):
-        outputs = extract_scalar(multivector)[0, :, :, 0]
-        if self.aggregation is not None:
-            logits = self.aggregation(outputs, index=batch)
-        else:
-            logits = outputs[is_global]
-        return logits
+    def extract_from_ga(self, multivector):
+        outputs = extract_scalar(multivector)[0, :, :, :]
+        return quarks
