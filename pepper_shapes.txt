@@ -1,0 +1,7 @@
+available fields
+['genlepton', 'gent', 'genb', 'genv', 'genw', 'genS', 'genChi', 'recolepton', 'recot', 'recob', 'Jet', 'dark_pt', 'chel', 'recot_sonn', 'weight']
+for the gen tops this is:
+['pt', 'eta', 'phi', 'mass', 'pdgId']
+for the jets this is
+['pt', 'eta', 'phi', 'mass', 'partonFlavour', 'btagDeepFlavB']
+and the jets look like 49077 * var * ?{"pt": float64, "eta": float32[parameters={"__doc__": "eta"}], "phi": float32[parameters={"__doc__": "phi"}], "mass": float64, "partonFlavour": int32[parameters={"__doc__": "flavour from parton matching"}], "btagDeepFlavB": float32[parameters={"__doc__": "DeepFlavour b+bb+lepb tag discriminator"}]}
