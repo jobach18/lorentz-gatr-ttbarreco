@@ -10,7 +10,7 @@ from sklearn.metrics import roc_curve, roc_auc_score, accuracy_score
 from experiments.base_experiment import BaseExperiment
 from experiments.top_reco.dataset import TopRecoDataset
 from experiments.tagging.plots import plot_mixer
-from experiments.tagging.embedding import embed_tagging_data_into_ga
+from experiments.top_reco.embedding import embed_tagging_data_into_ga
 from experiments.logger import LOGGER
 from experiments.mlflow import log_mlflow
 
@@ -86,6 +86,12 @@ class RecoExperiment(BaseExperiment):
             f"train_batches={len(self.train_loader)}, val_batches={len(self.val_loader)}, "
             f"batch_size={self.cfg.training.batchsize} (training), {self.cfg.evaluation.batchsize} (evaluation)"
         )
+        for batch in self.train_loader:
+            data = batch.x
+            labels = batch.targets
+            print("Data shape:", data.shape)
+            print("Labels shape:", labels.shape)
+            break
 
     def evaluate(self):
         self.results = {}
@@ -262,14 +268,17 @@ class RecoExperiment(BaseExperiment):
         embedding = embed_tagging_data_into_ga(
             batch.x, batch.scalars, batch.ptr, self.cfg.data
         )
-        y_pred = self.model(embedding)[:, 0]
-        return y_pred, batch.label.to(self.dtype)
+        print(f' the embedded data is {embedding}')
+        y_pred = self.model(embedding)
+        print(f'unaltered ypred is {y_pred.shape}')
+        y_pred = y_pred[:,0]
+        return y_pred, batch.targets.to(self.dtype)
 
     def _init_metrics(self):
         return {}
 
 
-class TopTaggingExperiment(TaggingExperiment):
+class TopRecoExperiment(RecoExperiment):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         with open_dict(self.cfg):

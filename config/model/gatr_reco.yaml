@@ -1,6 +1,5 @@
 _target_: experiments.top_reco.wrappers.RecoGATrWrapper
 force_xformers: '${training.force_xformers}'
-mean_aggregation: false
 
 net:
  _target_: gatr.nets.GATr

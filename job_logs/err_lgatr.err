@@ -1,30 +1,53 @@
 CUDA 11.8 loaded
 /beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/numba/core/decorators.py:262: NumbaDeprecationWarning: numba.generated_jit is deprecated. Please see the documentation at: https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-generated-jit for more information and advice on a suitable replacement.
   warnings.warn(msg, NumbaDeprecationWarning)
-/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'toptagging': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'top_reco': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
   warnings.warn(msg, UserWarning)
-INFO  [lorentz-gatr] Set experiment topt_local_debug with id 1
-[2024-10-21 15:12:13 I] Creating new experiment topt_local_debug/GATr_6232
-[2024-10-21 15:12:13 D] Saving source to ./runs/topt_local_debug/GATr_6232/source.zip
-[2024-10-21 15:12:14 I] Set experiment topt_local_debug with id 1
-[2024-10-21 15:12:14 I] Using device cuda
-[2024-10-21 15:12:14 I] ### Starting experiment topt_local_debug/GATr_6232 (id=1) ###
-[2024-10-21 15:12:17 W] Using training.force_xformers=False, this will slow down the network by a factor of 5-10.
-[2024-10-21 15:12:18 I] Instantiated model GATr with 65995 learnable parameters
-[2024-10-21 15:12:18 I] Not using EMA
-[2024-10-21 15:12:18 I] Creating TopTaggingDataset from data/toptagging_mini.npz
-[2024-10-21 15:13:38 I] Finished creating datasets after 79.95 s = 1.33 min
-[2024-10-21 15:13:38 I] Constructed dataloaders with train_batches=1, test_batches=1, val_batches=1, batch_size=128 (training), 128 (evaluation)
-[2024-10-21 15:13:38 I] Starting to train for 10 iterations = 10.0 epochs on a dataset with 1 batches using early stopping with patience 100 while validating every 5000 iterations
+INFO  [lorentz-gatr] Set experiment topreco_local_debug with id 1
+[2024-10-29 16:19:25 I] Creating new experiment topreco_local_debug/GATr_7777
+[2024-10-29 16:19:25 D] Saving source to ./runs/topreco_local_debug/GATr_7777/source.zip
+[2024-10-29 16:19:26 I] Set experiment topreco_local_debug with id 1
+[2024-10-29 16:19:26 I] Using device cuda
+[2024-10-29 16:19:26 I] ### Starting experiment topreco_local_debug/GATr_7777 (id=1) ###
+[2024-10-29 16:19:30 W] Using training.force_xformers=False, this will slow down the network by a factor of 5-10.
+/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch/nn/init.py:452: UserWarning: Initializing zero-element tensors is a no-op
+  warnings.warn("Initializing zero-element tensors is a no-op")
+[2024-10-29 16:19:30 I] Instantiated model GATr with 65955 learnable parameters
+[2024-10-29 16:19:30 I] Not using EMA
+[2024-10-29 16:19:30 I] Creating TopRecoDataset from data/train_TTTo2L2Nu_train.npz
+[2024-10-29 16:20:26 I] Finished creating datasets after 55.92 s = 0.93 min
+[2024-10-29 16:20:26 I] Constructed dataloaders with train_batches=5469, val_batches=2344, batch_size=128 (training), 128 (evaluation)
+[2024-10-29 16:20:26 I] Starting to train for 10 iterations = 0.0 epochs on a dataset with 5469 batches using early stopping with patience 100 while validating every 5000 iterations
+[2024-10-29 16:20:27 I] network inputs 
+multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
 /beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/numba/core/decorators.py:262: NumbaDeprecationWarning: numba.generated_jit is deprecated. Please see the documentation at: https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-generated-jit for more information and advice on a suitable replacement.
   warnings.warn(msg, NumbaDeprecationWarning)
-[2024-10-21 15:13:44 I] Finished iteration 1 after 6.12s, training time estimate: 1.02min = 0.02h
-[2024-10-21 15:13:46 I] Finished training for 9 iterations = 9.0 epochs after 0.14min = 0.00h
-[2024-10-21 15:13:46 W] Cannot load best model (epoch 0) from ./runs/topt_local_debug/GATr_6232/models/model_run0_it0.pt
-[2024-10-21 15:13:46 I] ### Starting to evaluate model on test dataset with 100 elements, batchsize 128 ###
-[2024-10-21 15:13:47 I] Accuracy on test dataset: 0.6000
-[2024-10-21 15:13:47 I] AUC score on test dataset: 0.7021
-[2024-10-21 15:13:47 I] Rejection rate test dataset: 6 (epsS=0.3), 4 (epsS=0.5), 2
-[2024-10-21 15:13:47 I] Creating plots in ./runs/topt_local_debug/GATr_6232/plots_0
-[2024-10-21 15:13:51 I] GPU RAM information: max_used = 3.29 GB, max_total = 17.1 GB
-[2024-10-21 15:13:51 I] Finished experiment topt_local_debug/GATr_6232 after 1.61min = 0.03h
+[2024-10-29 16:20:31 I] network output with 
+multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([2, 1, 4]) 
+/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch/nn/modules/loss.py:535: UserWarning: Using a target size (torch.Size([256, 4])) that is different to the input size (torch.Size([2, 4])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  return F.mse_loss(input, target, reduction=self.reduction)
+[2024-10-29 16:20:31 E] Exiting with error
+Traceback (most recent call last):
+  File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/base_experiment.py", line 42, in __call__
+    self.run_mlflow()
+  File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/base_experiment.py", line 64, in run_mlflow
+    self.full_run()
+  File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/base_experiment.py", line 87, in full_run
+    self.train()
+  File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/base_experiment.py", line 478, in train
+    self._step(data, step)
+  File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/base_experiment.py", line 542, in _step
+    loss, metrics = self._batch_loss(data)
+  File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/top_reco/experiment.py", line 260, in _batch_loss
+    loss = self.loss(y_pred, label)
+  File "/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1511, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1520, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch/nn/modules/loss.py", line 535, in forward
+    return F.mse_loss(input, target, reduction=self.reduction)
+  File "/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch/nn/functional.py", line 3338, in mse_loss
+    expanded_input, expanded_target = torch.broadcast_tensors(input, target)
+  File "/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch/functional.py", line 76, in broadcast_tensors
+    return _VF.broadcast_tensors(tensors)  # type: ignore[attr-defined]
+RuntimeError: The size of tensor a (2) must match the size of tensor b (256) at non-singleton dimension 0

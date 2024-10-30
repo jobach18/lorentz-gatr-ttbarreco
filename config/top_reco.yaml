@@ -1,0 +1,9 @@
+exp_type: top_reco
+exp_name: topreco_local_debug
+
+data:
+ data_dir : data/
+ dataset: mini
+
+defaults:
+ - default_reco

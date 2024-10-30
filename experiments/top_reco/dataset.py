@@ -25,9 +25,8 @@ class RecoDataset(torch.utils.data.Dataset):
         We set is_global=None if no global token is used
     """
 
-    def __init__(self, rescale_data):
+    def __init__(self):
         super().__init__()
-        self.rescale_data = rescale_data
 
     def load_data(self, filename, mode, data_scale):
         raise NotImplementedError
@@ -58,26 +57,30 @@ class TopRecoDataset(RecoDataset):
             Effectively a change of units to make the network entries O(1)
         """
         data = np.load(filename)
+        print(f'the data is {data}')
         kinematics = data["x"]
+        print(f'the kinematics are {kinematics}')
+        print(f'the kinematics shape is {kinematics.shape}')
         targets = data["y"]
+        print(f'the targets are {targets}')
+        print(f'the target shape is {targets.shape}')
 
         # preprocessing
 
         kinematics = torch.tensor(kinematics, dtype=dtype)
-        labels = torch.tensor(labels, dtype=dtype)
+        targets = torch.tensor(targets, dtype=dtype)
 
         # create list of torch_geometric.data.Data objects
+        # drop zero-padded components
         self.data_list = []
         for i in range(kinematics.shape[0]):
             # drop zero-padded components
-            mask = (kinematics[i, ...].abs() > EPS).all(dim=-1)
-            fourmomenta = kinematics[i, ...][mask]
-            targets = targets[i, ...]
+            fourmomenta = kinematics[i, ...]
+            targets_i = targets[i, ...]
             scalars = torch.zeros(
                 fourmomenta.shape[0],
-                pdgids,
+                0,
                 dtype=dtype,
             )  # no scalar information
-            data = Data(x=fourmomenta, scalars=scalars, targets=targets)
+            data = Data(x=fourmomenta, scalars=scalars, targets=targets_i)
             self.data_list.append(data)
-

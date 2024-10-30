@@ -1,6 +1,7 @@
 import hydra
 from experiments.amplitudes.experiment import AmplitudeExperiment
 from experiments.tagging.experiment import TopTaggingExperiment, QGTaggingExperiment
+from experiments.top_reco.experiment import TopRecoExperiment
 from experiments.eventgen.processes import (
     ttbarExperiment,
     zmumuExperiment,
@@ -10,12 +11,14 @@ from experiments.tagging.jetclassexperiment import JetClassTaggingExperiment
 from experiments.tagging.finetuneexperiment import TopTaggingFineTuneExperiment
 
 
-@hydra.main(config_path="config", config_name="toptagging", version_base=None)
+@hydra.main(config_path="config", config_name="top_reco", version_base=None)
 def main(cfg):
     if cfg.exp_type == "amplitudes":
         exp = AmplitudeExperiment(cfg)
     elif cfg.exp_type == "toptagging":
         exp = TopTaggingExperiment(cfg)
+    elif cfg.exp_type == "top_reco":
+        exp = TopRecoExperiment(cfg)
     elif cfg.exp_type == "qgtagging":
         exp = QGTaggingExperiment(cfg)
     elif cfg.exp_type == "jctagging":

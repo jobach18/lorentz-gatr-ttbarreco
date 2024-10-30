@@ -3,7 +3,9 @@ from torch import nn
 from torch_geometric.nn.aggr import MeanAggregation
 
 from gatr.interface import extract_scalar
+from gatr.interface import extract_vector
 from xformers.ops.fmha import BlockDiagonalMask
+from experiments.logger import LOGGER
 
 
 def xformers_sa_mask(batch, materialize=False):
@@ -51,6 +53,10 @@ class RecoGATrWrapper(nn.Module):
     def forward(self, embedding):
         multivector = embedding["mv"].unsqueeze(0)
         scalars = embedding["s"].unsqueeze(0)
+        LOGGER.info(
+                f"network inputs \n"
+                f"multivectors={multivector.shape} and scalar={scalars.shape}"
+                )
 
         mask = xformers_sa_mask(embedding["batch"], materialize=not self.force_xformers)
         multivector_outputs, scalar_outputs = self.net(
@@ -63,5 +69,9 @@ class RecoGATrWrapper(nn.Module):
         return logits
 
     def extract_from_ga(self, multivector):
-        outputs = extract_scalar(multivector)[0, :, :, :]
-        return quarks
+        outputs = extract_vector(multivector[0, 1:3, :, :])
+        LOGGER.info(
+            f"network output with \n"
+            f"multivector={multivector.shape}, outputs={outputs.shape} "
+        )
+        return outputs
