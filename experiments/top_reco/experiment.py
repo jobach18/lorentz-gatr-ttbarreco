@@ -112,7 +112,7 @@ class RecoExperiment(BaseExperiment):
 
             else:
                 self.results[set_label] = self._evaluate_single(
-                    loader_dict[set_label], set_label, mode="eval"
+                    loader_dict[set_label], set_label
                 )
 
     def _evaluate_single(self, loader, title, step=None):
@@ -133,12 +133,14 @@ class RecoExperiment(BaseExperiment):
                 pred = self.model(
                     x.to(self.device)
                 )
+                LOGGER.info(
+                    f'the output during eval is'
+                    f'{pred.shape}'      
+                    )
 
-                y_pred = pred[0, ..., 0]
-
-                amplitudes_pred_prepd[idataset].append(y_pred.cpu().float().numpy())
+                amplitudes_pred_prepd[idataset].append(pred.cpu().float().numpy())
                 amplitudes_truth_prepd[idataset].append(
-                    y.flatten().cpu().float().numpy()
+                    y.cpu().float().numpy()
                 )
         amplitudes_pred_prepd = [
             np.concatenate(individual) for individual in amplitudes_pred_prepd
@@ -158,41 +160,20 @@ class RecoExperiment(BaseExperiment):
 
         results = {}
         for idataset, dataset in enumerate(self.cfg.data.dataset):
-            amp_pred_prepd = amplitudes_pred_prepd[idataset]
-            amp_truth_prepd = amplitudes_truth_prepd[idataset]
+            amp_pred = amplitudes_pred_prepd[idataset]
+            amp_truth = amplitudes_truth_prepd[idataset]
 
             # compute metrics over preprocessed amplitudes
-            mse_prepd = np.mean((amp_pred_prepd - amp_truth_prepd) ** 2)
+            mse_prepd = np.mean((amp_pred - amp_truth) ** 2)
 
-            # undo preprocessing
-            amp_truth = undo_preprocess_amplitude(
-                amp_truth_prepd, self.prepd_mean[idataset], self.prepd_std[idataset]
-            )
-            amp_pred = undo_preprocess_amplitude(
-                amp_pred_prepd, self.prepd_mean[idataset], self.prepd_std[idataset]
-            )
 
-            # compute metrics over actual amplitudes
-            mse = np.mean((amp_truth - amp_pred) ** 2)
 
-            delta = (amp_truth - amp_pred) / amp_truth
-            delta_maxs = [0.001, 0.01, 0.1]
-            delta_rates = []
-            for delta_max in delta_maxs:
-                rate = np.mean(
-                    (delta > -delta_max) * (delta < delta_max)
-                )  # fraction of events with -delta_max < delta < delta_max
-                delta_rates.append(rate)
-            LOGGER.info(
-                f"rate of events in delta interval on {dataset} {title} dataset:\t"
-                f"{[f'{delta_rates[i]:.4f} ({delta_maxs[i]})' for i in range(len(delta_maxs))]}"
-            )
+            delta = np.sum((amp_pred - amp_truth) / amp_truth)
 
             # log to mlflow
             if self.cfg.use_mlflow:
                 log_dict = {
                     f"eval.{title}.{dataset}.mse": mse_prepd,
-                    f"eval.{title}.{dataset}.mse_raw": mse,
                 }
                 for key, value in log_dict.items():
                     log_mlflow(key, value)
@@ -201,11 +182,6 @@ class RecoExperiment(BaseExperiment):
                 "raw": {
                     "truth": amp_truth,
                     "prediction": amp_pred,
-                    "mse": mse,
-                },
-                "preprocessed": {
-                    "truth": amp_truth_prepd,
-                    "prediction": amp_pred_prepd,
                     "mse": mse_prepd,
                 },
             }
@@ -222,17 +198,17 @@ class RecoExperiment(BaseExperiment):
         if (
             self.cfg.evaluation.save_roc
             and self.cfg.evaluate
-            and ("test" in self.cfg.evaluation.eval_set)
+            and ("val" in self.cfg.evaluation.eval_set)
         ):
             file = f"{plot_path}/roc.txt"
             roc = np.stack(
-                (self.results["test"]["fpr"], self.results["test"]["tpr"]), axis=-1
+                (self.results["val"]["fpr"], self.results["val"]["tpr"]), axis=-1
             )
             np.savetxt(file, roc)
 
         plot_dict = {}
-        if self.cfg.evaluate and ("test" in self.cfg.evaluation.eval_set):
-            plot_dict = {"results_test": self.results["test"]}
+        if self.cfg.evaluate and ("val" in self.cfg.evaluation.eval_set):
+            plot_dict = {"results_val": self.results["val"]}
         if self.cfg.train:
             plot_dict["train_loss"] = self.train_loss
             plot_dict["val_loss"] = self.val_loss
