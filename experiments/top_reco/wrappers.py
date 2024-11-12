@@ -69,7 +69,7 @@ class RecoGATrWrapper(nn.Module):
         return logits
 
     def extract_from_ga(self, multivector):
-        outputs = extract_vector(multivector[0, 1:3, :, :])
+        outputs = extract_vector(multivector[0, ::7, :, :])
         LOGGER.info(
             f"network output with \n"
             f"multivector={multivector.shape}, outputs={outputs.shape} "
