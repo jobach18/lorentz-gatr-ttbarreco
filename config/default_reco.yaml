@@ -18,7 +18,7 @@ training:
 evaluation:
  batchsize: 128
  save_roc: false
- eval_set: [test]
+ eval_set: [val]
 
 plotting:
  roc: true
