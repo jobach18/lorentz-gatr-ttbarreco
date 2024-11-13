@@ -127,8 +127,7 @@ class RecoExperiment(BaseExperiment):
             self.optimizer.eval()
         t0 = time.time()
         for data in loader:
-            for idataset, data_onedataset in enumerate(data):
-                x, y = data_onedataset
+            for x, y in enumerate(data):
                 print(f' the x and y are: {x} and {y}')
                 x = x.unsqueeze(0)
                 pred = self.model(
