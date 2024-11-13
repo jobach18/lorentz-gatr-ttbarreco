@@ -119,8 +119,8 @@ class RecoExperiment(BaseExperiment):
         # compute predictions
         # note: shuffle=True or False does not matter, because we take the predictions directly from the dataloader and not from the dataset
         amplitudes_truth_prepd, amplitudes_pred_prepd = [
-            [] for _ in range(self.n_datasets)
-        ], [[] for _ in range(self.n_datasets)]
+            [] for _ in range(1)
+        ], [[] for _ in range(1)]
         LOGGER.info(f"### Starting to evaluate model on {title} dataset ###")
         self.model.eval()
         if self.cfg.training.optimizer == "ScheduleFree":
@@ -129,6 +129,7 @@ class RecoExperiment(BaseExperiment):
         for data in loader:
             for idataset, data_onedataset in enumerate(data):
                 x, y = data_onedataset
+                print(f' the x and y are: {x} and {y}')
                 x = x.unsqueeze(0)
                 pred = self.model(
                     x.to(self.device)

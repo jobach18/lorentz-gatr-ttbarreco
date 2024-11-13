@@ -4,66 +4,67 @@ CUDA 11.8 loaded
 /beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'top_reco': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
   warnings.warn(msg, UserWarning)
 INFO  [lorentz-gatr] Set experiment topreco_local_debug with id 1
-[2024-11-12 14:30:30 I] Creating new experiment topreco_local_debug/GATr_1632
-[2024-11-12 14:30:30 D] Saving source to ./runs/topreco_local_debug/GATr_1632/source.zip
-[2024-11-12 14:30:31 I] Set experiment topreco_local_debug with id 1
-[2024-11-12 14:30:31 I] Using device cuda
-[2024-11-12 14:30:31 I] ### Starting experiment topreco_local_debug/GATr_1632 (id=1) ###
-[2024-11-12 14:30:33 W] Using training.force_xformers=False, this will slow down the network by a factor of 5-10.
+[2024-11-13 14:37:55 I] Creating new experiment topreco_local_debug/GATr_5000
+[2024-11-13 14:37:55 D] Saving source to ./runs/topreco_local_debug/GATr_5000/source.zip
+[2024-11-13 14:37:56 I] Set experiment topreco_local_debug with id 1
+[2024-11-13 14:37:56 I] Using device cuda
+[2024-11-13 14:37:56 I] ### Starting experiment topreco_local_debug/GATr_5000 (id=1) ###
+[2024-11-13 14:37:58 W] Using training.force_xformers=False, this will slow down the network by a factor of 5-10.
 /beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch/nn/init.py:452: UserWarning: Initializing zero-element tensors is a no-op
   warnings.warn("Initializing zero-element tensors is a no-op")
-[2024-11-12 14:30:33 I] Instantiated model GATr with 65955 learnable parameters
-[2024-11-12 14:30:33 I] Not using EMA
-[2024-11-12 14:30:33 I] Creating TopRecoDataset from data/train_TTTo2L2Nu_train.npz
-[2024-11-12 14:31:15 I] Finished creating datasets after 41.95 s = 0.70 min
-[2024-11-12 14:31:15 I] Constructed dataloaders with train_batches=5469, val_batches=2344, batch_size=128 (training), 128 (evaluation)
-[2024-11-12 14:31:16 I] Starting to train for 10 iterations = 0.0 epochs on a dataset with 5469 batches using early stopping with patience 100 while validating every 5000 iterations
-[2024-11-12 14:31:16 I] network inputs 
+[2024-11-13 14:37:58 I] Instantiated model GATr with 65955 learnable parameters
+[2024-11-13 14:37:58 I] Not using EMA
+[2024-11-13 14:37:58 I] Creating TopRecoDataset from data/train_TTTo2L2Nu_train.npz
+[2024-11-13 14:38:43 I] Finished creating datasets after 44.50 s = 0.74 min
+[2024-11-13 14:38:43 I] Constructed dataloaders with train_batches=5469, val_batches=2344, batch_size=128 (training), 128 (evaluation)
+[2024-11-13 14:38:43 I] Starting to train for 10 iterations = 0.0 epochs on a dataset with 5469 batches using early stopping with patience 100 while validating every 5000 iterations
+[2024-11-13 14:38:47 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
 /beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/numba/core/decorators.py:262: NumbaDeprecationWarning: numba.generated_jit is deprecated. Please see the documentation at: https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-generated-jit for more information and advice on a suitable replacement.
   warnings.warn(msg, NumbaDeprecationWarning)
-[2024-11-12 14:31:20 I] network output with 
+[2024-11-13 14:38:57 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-12 14:31:22 I] Finished iteration 1 after 6.10s, training time estimate: 1.02min = 0.02h
-[2024-11-12 14:31:22 I] network inputs 
+[2024-11-13 14:39:01 I] Finished iteration 1 after 17.77s, training time estimate: 2.96min = 0.05h
+[2024-11-13 14:39:01 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-12 14:31:22 I] network output with 
+[2024-11-13 14:39:01 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-12 14:31:22 I] network inputs 
+[2024-11-13 14:39:01 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-12 14:31:22 I] network output with 
+[2024-11-13 14:39:01 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-12 14:31:22 I] network inputs 
+[2024-11-13 14:39:01 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-12 14:31:22 I] network output with 
+[2024-11-13 14:39:01 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-12 14:31:22 I] network inputs 
+[2024-11-13 14:39:01 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-12 14:31:22 I] network output with 
+[2024-11-13 14:39:01 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-12 14:31:22 I] network inputs 
+[2024-11-13 14:39:01 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-12 14:31:22 I] network output with 
+[2024-11-13 14:39:01 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-12 14:31:22 I] network inputs 
+[2024-11-13 14:39:01 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-12 14:31:22 I] network output with 
+[2024-11-13 14:39:01 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-12 14:31:22 I] network inputs 
+[2024-11-13 14:39:01 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-12 14:31:22 I] network output with 
+[2024-11-13 14:39:01 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-12 14:31:22 I] network inputs 
+[2024-11-13 14:39:02 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-12 14:31:22 I] network output with 
+[2024-11-13 14:39:02 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-12 14:31:22 I] network inputs 
+[2024-11-13 14:39:02 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-12 14:31:22 I] network output with 
+[2024-11-13 14:39:02 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-12 14:31:22 I] Finished training for 9 iterations = 0.0 epochs after 0.11min = 0.00h
-[2024-11-12 14:31:22 W] Cannot load best model (epoch 0) from ./runs/topreco_local_debug/GATr_1632/models/model_run0_it0.pt
-[2024-11-12 14:31:22 E] Exiting with error
+[2024-11-13 14:39:02 I] Finished training for 9 iterations = 0.0 epochs after 0.31min = 0.01h
+[2024-11-13 14:39:02 W] Cannot load best model (epoch 0) from ./runs/topreco_local_debug/GATr_5000/models/model_run0_it0.pt
+[2024-11-13 14:39:02 I] ### Starting to evaluate model on val dataset ###
+[2024-11-13 14:39:02 E] Exiting with error
 Traceback (most recent call last):
   File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/base_experiment.py", line 42, in __call__
     self.run_mlflow()
@@ -71,6 +72,8 @@ Traceback (most recent call last):
     self.full_run()
   File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/base_experiment.py", line 91, in full_run
     self.evaluate()
-  File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/top_reco/experiment.py", line 115, in evaluate
-    loader_dict[set_label], set_label, mode="eval"
-KeyError: 'test'
+  File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/top_reco/experiment.py", line 114, in evaluate
+    self.results[set_label] = self._evaluate_single(
+  File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/top_reco/experiment.py", line 133, in _evaluate_single
+    x = x.unsqueeze(0)
+AttributeError: 'str' object has no attribute 'unsqueeze'
