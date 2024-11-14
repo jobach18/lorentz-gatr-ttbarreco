@@ -9,7 +9,7 @@ from sklearn.metrics import roc_curve, roc_auc_score, accuracy_score
 
 from experiments.base_experiment import BaseExperiment
 from experiments.top_reco.dataset import TopRecoDataset
-from experiments.tagging.plots import plot_mixer
+from experiments.top_reco.plots import plot_mixer
 from experiments.top_reco.embedding import embed_tagging_data_into_ga
 from experiments.logger import LOGGER
 from experiments.mlflow import log_mlflow
@@ -127,6 +127,7 @@ class RecoExperiment(BaseExperiment):
             self.optimizer.eval()
         t0 = time.time()
         for data in loader:
+            data.to(self.device)
             print(f' the data is {data}')
             y = data['targets'] 
             print(f' the x and y are: {data["x"]} and {data["targets"]}')
@@ -142,9 +143,9 @@ class RecoExperiment(BaseExperiment):
                 f'{pred.shape}'      
                 )
 
-            amplitudes_pred_prepd[idataset].append(pred.cpu().float().numpy())
-            amplitudes_truth_prepd[idataset].append(
-                y.cpu().float().numpy()
+            amplitudes_pred_prepd[0].append(pred.cpu().float().detach().numpy())
+            amplitudes_truth_prepd[0].append(
+                y.cpu().float().detach().numpy()
             )
         amplitudes_pred_prepd = [
             np.concatenate(individual) for individual in amplitudes_pred_prepd
@@ -163,33 +164,32 @@ class RecoExperiment(BaseExperiment):
         )
 
         results = {}
-        for idataset, dataset in enumerate(self.cfg.data.dataset):
-            amp_pred = amplitudes_pred_prepd[idataset]
-            amp_truth = amplitudes_truth_prepd[idataset]
+        amp_pred = amplitudes_pred_prepd[0]
+        amp_truth = amplitudes_truth_prepd[0]
 
-            # compute metrics over preprocessed amplitudes
-            mse_prepd = np.mean((amp_pred - amp_truth) ** 2)
-
+        # compute metrics over preprocessed amplitudes
+        mse_prepd = np.mean((amp_pred.flatten() - amp_truth.flatten()) ** 2)
 
 
-            delta = np.sum((amp_pred - amp_truth) / amp_truth)
 
-            # log to mlflow
-            if self.cfg.use_mlflow:
-                log_dict = {
-                    f"eval.{title}.{dataset}.mse": mse_prepd,
-                }
-                for key, value in log_dict.items():
-                    log_mlflow(key, value)
+        delta = np.sum((amp_pred.flatten() - amp_truth.flatten()) / amp_truth.flatten())
 
-            amp = {
-                "raw": {
-                    "truth": amp_truth,
-                    "prediction": amp_pred,
-                    "mse": mse_prepd,
-                },
+        # log to mlflow
+        if self.cfg.use_mlflow:
+            log_dict = {
+                f"eval.{title}.val.mse": mse_prepd,
             }
-            results[dataset] = amp
+            for key, value in log_dict.items():
+                log_mlflow(key, value)
+
+        amp = {
+            "raw": {
+                "truth": amp_truth,
+                "prediction": amp_pred,
+                "mse": mse_prepd,
+            },
+        }
+        results["val"] = amp
         return results
 
     def plot(self):
