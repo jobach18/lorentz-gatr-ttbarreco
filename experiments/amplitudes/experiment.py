@@ -254,7 +254,6 @@ class AmplitudeExperiment(BaseExperiment):
             else:
                 self.results_train = self._evaluate_single(self.train_loader, "train")
                 self.results_val = self._evaluate_single(self.val_loader, "val")
-                self.results_test = self._evaluate_single(self.test_loader, "test")
 
     def _evaluate_single(self, loader, title):
         # compute predictions
@@ -373,7 +372,7 @@ class AmplitudeExperiment(BaseExperiment):
 
         plot_dict = {}
         if self.cfg.evaluate:
-            plot_dict["results_test"] = self.results_test
+            plot_dict["results_val"] = self.results_test
             plot_dict["results_train"] = self.results_train
         if self.cfg.train:
             plot_dict["train_loss"] = self.train_loss
