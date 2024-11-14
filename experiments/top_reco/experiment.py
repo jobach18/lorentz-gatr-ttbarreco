@@ -127,8 +127,10 @@ class RecoExperiment(BaseExperiment):
             self.optimizer.eval()
         t0 = time.time()
         for data in loader:
+            print(data)
             for x, y in enumerate(data):
                 print(f' the x and y are: {x} and {y}')
+                print(f'and y has the shape {y[1].shape}')
                 x = x.unsqueeze(0)
                 pred = self.model(
                     x.to(self.device)
