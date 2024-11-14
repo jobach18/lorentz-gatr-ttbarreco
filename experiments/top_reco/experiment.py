@@ -127,23 +127,24 @@ class RecoExperiment(BaseExperiment):
             self.optimizer.eval()
         t0 = time.time()
         for data in loader:
-            print(data)
-            for _, x, _, _, _, y in enumerate(data):
-                print(f' the x and y are: {x} and {y}')
-                print(f'and y has the shape {y[1].shape}')
-                x = x.unsqueeze(0)
-                pred = self.model(
-                    x.to(self.device)
+            print(data["x"])
+            x = data["x"]
+            y = data['targets'] 
+            print(f' the x and y are: {data["x"]} and {data["targets"]}')
+            print(f'and y has the shape {y[1].shape}')
+            x = x.unsqueeze(0)
+            pred = self.model(
+                    data
+            )
+            LOGGER.info(
+                f'the output during eval is'
+                f'{pred.shape}'      
                 )
-                LOGGER.info(
-                    f'the output during eval is'
-                    f'{pred.shape}'      
-                    )
 
-                amplitudes_pred_prepd[idataset].append(pred.cpu().float().numpy())
-                amplitudes_truth_prepd[idataset].append(
-                    y.cpu().float().numpy()
-                )
+            amplitudes_pred_prepd[idataset].append(pred.cpu().float().numpy())
+            amplitudes_truth_prepd[idataset].append(
+                y.cpu().float().numpy()
+            )
         amplitudes_pred_prepd = [
             np.concatenate(individual) for individual in amplitudes_pred_prepd
         ]

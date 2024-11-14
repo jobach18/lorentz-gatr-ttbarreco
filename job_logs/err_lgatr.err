@@ -4,67 +4,67 @@ CUDA 11.8 loaded
 /beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'top_reco': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
   warnings.warn(msg, UserWarning)
 INFO  [lorentz-gatr] Set experiment topreco_local_debug with id 1
-[2024-11-13 16:30:02 I] Creating new experiment topreco_local_debug/GATr_0644
-[2024-11-13 16:30:02 D] Saving source to ./runs/topreco_local_debug/GATr_0644/source.zip
-[2024-11-13 16:30:03 I] Set experiment topreco_local_debug with id 1
-[2024-11-13 16:30:03 I] Using device cuda
-[2024-11-13 16:30:03 I] ### Starting experiment topreco_local_debug/GATr_0644 (id=1) ###
-[2024-11-13 16:30:06 W] Using training.force_xformers=False, this will slow down the network by a factor of 5-10.
+[2024-11-14 13:28:40 I] Creating new experiment topreco_local_debug/GATr_0289
+[2024-11-14 13:28:40 D] Saving source to ./runs/topreco_local_debug/GATr_0289/source.zip
+[2024-11-14 13:28:49 I] Set experiment topreco_local_debug with id 1
+[2024-11-14 13:28:49 I] Using device cuda
+[2024-11-14 13:28:49 I] ### Starting experiment topreco_local_debug/GATr_0289 (id=1) ###
+[2024-11-14 13:29:12 W] Using training.force_xformers=False, this will slow down the network by a factor of 5-10.
 /beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch/nn/init.py:452: UserWarning: Initializing zero-element tensors is a no-op
   warnings.warn("Initializing zero-element tensors is a no-op")
-[2024-11-13 16:30:06 I] Instantiated model GATr with 65955 learnable parameters
-[2024-11-13 16:30:06 I] Not using EMA
-[2024-11-13 16:30:06 I] Creating TopRecoDataset from data/train_TTTo2L2Nu_train.npz
-[2024-11-13 16:30:51 I] Finished creating datasets after 45.14 s = 0.75 min
-[2024-11-13 16:30:51 I] Constructed dataloaders with train_batches=5469, val_batches=2344, batch_size=128 (training), 128 (evaluation)
-[2024-11-13 16:30:51 I] Starting to train for 10 iterations = 0.0 epochs on a dataset with 5469 batches using early stopping with patience 100 while validating every 5000 iterations
-[2024-11-13 16:30:52 I] network inputs 
+[2024-11-14 13:29:13 I] Instantiated model GATr with 65955 learnable parameters
+[2024-11-14 13:29:13 I] Not using EMA
+[2024-11-14 13:29:13 I] Creating TopRecoDataset from data/train_TTTo2L2Nu_train.npz
+[2024-11-14 13:30:00 I] Finished creating datasets after 47.28 s = 0.79 min
+[2024-11-14 13:30:00 I] Constructed dataloaders with train_batches=5469, val_batches=2344, batch_size=128 (training), 128 (evaluation)
+[2024-11-14 13:30:00 I] Starting to train for 10 iterations = 0.0 epochs on a dataset with 5469 batches using early stopping with patience 100 while validating every 5000 iterations
+[2024-11-14 13:30:01 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
 /beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/numba/core/decorators.py:262: NumbaDeprecationWarning: numba.generated_jit is deprecated. Please see the documentation at: https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-generated-jit for more information and advice on a suitable replacement.
   warnings.warn(msg, NumbaDeprecationWarning)
-[2024-11-13 16:30:57 I] network output with 
+[2024-11-14 13:30:05 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-13 16:31:00 I] Finished iteration 1 after 8.79s, training time estimate: 1.46min = 0.02h
-[2024-11-13 16:31:00 I] network inputs 
+[2024-11-14 13:30:06 I] Finished iteration 1 after 5.61s, training time estimate: 0.93min = 0.02h
+[2024-11-14 13:30:06 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-13 16:31:00 I] network output with 
+[2024-11-14 13:30:06 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-13 16:31:00 I] network inputs 
+[2024-11-14 13:30:06 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-13 16:31:00 I] network output with 
+[2024-11-14 13:30:06 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-13 16:31:00 I] network inputs 
+[2024-11-14 13:30:06 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-13 16:31:00 I] network output with 
+[2024-11-14 13:30:06 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-13 16:31:00 I] network inputs 
+[2024-11-14 13:30:06 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-13 16:31:00 I] network output with 
+[2024-11-14 13:30:06 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-13 16:31:00 I] network inputs 
+[2024-11-14 13:30:06 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-13 16:31:00 I] network output with 
+[2024-11-14 13:30:06 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-13 16:31:00 I] network inputs 
+[2024-11-14 13:30:06 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-13 16:31:00 I] network output with 
+[2024-11-14 13:30:06 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-13 16:31:00 I] network inputs 
+[2024-11-14 13:30:06 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-13 16:31:01 I] network output with 
+[2024-11-14 13:30:06 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-13 16:31:01 I] network inputs 
+[2024-11-14 13:30:07 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-13 16:31:01 I] network output with 
+[2024-11-14 13:30:07 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-13 16:31:01 I] network inputs 
+[2024-11-14 13:30:07 I] network inputs 
 multivectors=torch.Size([1, 1792, 1, 16]) and scalar=torch.Size([1, 1792, 0])
-[2024-11-13 16:31:01 I] network output with 
+[2024-11-14 13:30:07 I] network output with 
 multivector=torch.Size([1, 1792, 1, 16]), outputs=torch.Size([256, 1, 4]) 
-[2024-11-13 16:31:01 I] Finished training for 9 iterations = 0.0 epochs after 0.16min = 0.00h
-[2024-11-13 16:31:01 W] Cannot load best model (epoch 0) from ./runs/topreco_local_debug/GATr_0644/models/model_run0_it0.pt
-[2024-11-13 16:31:01 I] ### Starting to evaluate model on val dataset ###
-[2024-11-13 16:31:01 E] Exiting with error
+[2024-11-14 13:30:07 I] Finished training for 9 iterations = 0.0 epochs after 0.11min = 0.00h
+[2024-11-14 13:30:07 W] Cannot load best model (epoch 0) from ./runs/topreco_local_debug/GATr_0289/models/model_run0_it0.pt
+[2024-11-14 13:30:07 I] ### Starting to evaluate model on val dataset ###
+[2024-11-14 13:30:07 E] Exiting with error
 Traceback (most recent call last):
   File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/base_experiment.py", line 42, in __call__
     self.run_mlflow()
@@ -74,6 +74,18 @@ Traceback (most recent call last):
     self.evaluate()
   File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/top_reco/experiment.py", line 114, in evaluate
     self.results[set_label] = self._evaluate_single(
-  File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/top_reco/experiment.py", line 134, in _evaluate_single
-    x = x.unsqueeze(0)
-AttributeError: 'int' object has no attribute 'unsqueeze'
+  File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/top_reco/experiment.py", line 136, in _evaluate_single
+    pred = self.model(
+  File "/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1511, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1520, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/beegfs/desy/user/bachjoer/ml-workspace/lgatr/experiments/top_reco/wrappers.py", line 54, in forward
+    multivector = embedding["mv"].unsqueeze(0)
+  File "/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch_geometric/data/batch.py", line 175, in __getitem__
+    return super().__getitem__(idx)
+  File "/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch_geometric/data/data.py", line 498, in __getitem__
+    return self._store[key]
+  File "/beegfs/desy/user/bachjoer/mamba/lgatr/lib/python3.9/site-packages/torch_geometric/data/storage.py", line 111, in __getitem__
+    return self._mapping[key]
+KeyError: 'mv'
