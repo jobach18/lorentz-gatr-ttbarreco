@@ -127,14 +127,15 @@ class RecoExperiment(BaseExperiment):
             self.optimizer.eval()
         t0 = time.time()
         for data in loader:
-            print(data["x"])
-            x = data["x"]
+            print(f' the data is {data}')
             y = data['targets'] 
             print(f' the x and y are: {data["x"]} and {data["targets"]}')
-            print(f'and y has the shape {y[1].shape}')
-            x = x.unsqueeze(0)
+            print(f'and y has the shape {y.shape}')
+            embedding = embed_tagging_data_into_ga(
+                data.x, data.scalars, data.ptr, self.cfg.data
+            )
             pred = self.model(
-                    data
+                    embedding
             )
             LOGGER.info(
                 f'the output during eval is'
