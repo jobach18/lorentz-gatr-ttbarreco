@@ -31,12 +31,9 @@ def embed_tagging_data_into_ga(fourmomenta, scalars, ptr, cfg_data):
     batchsize = len(ptr) - 1
     arange = torch.arange(batchsize, device=fourmomenta.device)
 
-    print(f'the four momenta: {fourmomenta.shape}')
     # embed fourmomenta into multivectors
     multivectors = embed_vector(fourmomenta)
-    print(f'the multivector version is {multivectors.shape}')
     multivectors = multivectors.unsqueeze(-2)
-    print(f'the multivectors after unsqueezing {multivectors.shape}')
 
     # beam reference
     spurions = get_spurion(
@@ -46,7 +43,6 @@ def embed_tagging_data_into_ga(fourmomenta, scalars, ptr, cfg_data):
         fourmomenta.device,
         fourmomenta.dtype,
     )
-    print(f'the spurions itself: {spurions.shape}')
     n_spurions = spurions.shape[0]
     if cfg_data.beam_token:
         # prepend spurions to the token list (within each block)
@@ -65,7 +61,6 @@ def embed_tagging_data_into_ga(fourmomenta, scalars, ptr, cfg_data):
             device=multivectors.device,
         )
         insert_spurion[spurion_idxs] = True
-        print(f'the insert spurion is {insert_spurion}')
         multivectors_buffer = multivectors.clone()
         multivectors = torch.empty(
             insert_spurion.shape[0],
@@ -97,7 +92,6 @@ def embed_tagging_data_into_ga(fourmomenta, scalars, ptr, cfg_data):
         ptr[1:] - ptr[:-1],
     )
     batch = get_batch_from_ptr(ptr)
-    print(f'after embedding the mv shape is {multivectors.shape}')
     embedding = {
         "mv": multivectors,
         "s": scalars,

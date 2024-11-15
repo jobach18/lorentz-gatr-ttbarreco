@@ -53,10 +53,6 @@ class RecoGATrWrapper(nn.Module):
     def forward(self, embedding):
         multivector = embedding["mv"].unsqueeze(0)
         scalars = embedding["s"].unsqueeze(0)
-        LOGGER.info(
-                f"network inputs \n"
-                f"multivectors={multivector.shape} and scalar={scalars.shape}"
-                )
 
         mask = xformers_sa_mask(embedding["batch"], materialize=not self.force_xformers)
         multivector_outputs, scalar_outputs = self.net(
@@ -70,8 +66,4 @@ class RecoGATrWrapper(nn.Module):
 
     def extract_from_ga(self, multivector):
         outputs = extract_vector(multivector[0, ::7, :, :])
-        LOGGER.info(
-            f"network output with \n"
-            f"multivector={multivector.shape}, outputs={outputs.shape} "
-        )
         return outputs

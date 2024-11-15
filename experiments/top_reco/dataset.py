@@ -57,13 +57,8 @@ class TopRecoDataset(RecoDataset):
             Effectively a change of units to make the network entries O(1)
         """
         data = np.load(filename)
-        print(f'the data is {data}')
         kinematics = data["x"]
-        print(f'the kinematics are {kinematics}')
-        print(f'the kinematics shape is {kinematics.shape}')
         targets = data["y"]
-        print(f'the targets are {targets}')
-        print(f'the target shape is {targets.shape}')
 
         # preprocessing
 

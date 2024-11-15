@@ -89,8 +89,6 @@ class RecoExperiment(BaseExperiment):
         for batch in self.train_loader:
             data = batch.x
             labels = batch.targets
-            print("Data shape:", data.shape)
-            print("Labels shape:", labels.shape)
             break
 
     def evaluate(self):
@@ -128,20 +126,13 @@ class RecoExperiment(BaseExperiment):
         t0 = time.time()
         for data in loader:
             data.to(self.device)
-            print(f' the data is {data}')
             y = data['targets'] 
-            print(f' the x and y are: {data["x"]} and {data["targets"]}')
-            print(f'and y has the shape {y.shape}')
             embedding = embed_tagging_data_into_ga(
                 data.x, data.scalars, data.ptr, self.cfg.data
             )
             pred = self.model(
                     embedding
             )
-            LOGGER.info(
-                f'the output during eval is'
-                f'{pred.shape}'      
-                )
 
             amplitudes_pred_prepd[0].append(pred.cpu().float().detach().numpy())
             amplitudes_truth_prepd[0].append(
@@ -169,6 +160,8 @@ class RecoExperiment(BaseExperiment):
 
         # compute metrics over preprocessed amplitudes
         mse_prepd = np.mean((amp_pred.flatten() - amp_truth.flatten()) ** 2)
+
+        results["val_loss"] = mse_prepd
 
 
 
@@ -226,14 +219,14 @@ class RecoExperiment(BaseExperiment):
         if self.ema is not None:
             with self.ema.average_parameters():
                 metrics = self._evaluate_single(
-                    self.val_loader, "val", mode="val", step=step
+                    self.val_loader, "val", step=step
                 )
         else:
             metrics = self._evaluate_single(
-                self.val_loader, "val", mode="val", step=step
+                self.val_loader, "val", step=step
             )
-        self.val_loss.append(metrics["loss"])
-        return metrics["loss"]
+        self.val_loss.append(metrics["val_loss"])
+        return metrics["val_loss"]
 
     def _batch_loss(self, batch):
         y_pred, label = self._get_ypred_and_label(batch)
@@ -248,9 +241,7 @@ class RecoExperiment(BaseExperiment):
         embedding = embed_tagging_data_into_ga(
             batch.x, batch.scalars, batch.ptr, self.cfg.data
         )
-        print(f' the embedded data is {embedding}')
         y_pred = self.model(embedding)
-        print(f'unaltered ypred is {y_pred.shape}')
         y_pred = y_pred[:,0]
         return y_pred, batch.targets.to(self.dtype)
 
