@@ -134,10 +134,12 @@ class RecoExperiment(BaseExperiment):
                     embedding
             )
 
+
             amplitudes_pred_prepd[0].append(pred.cpu().float().detach().numpy())
             amplitudes_truth_prepd[0].append(
                 y.cpu().float().detach().numpy()
             )
+        print(f' the predicted amplitudes: {amplitudes_pred_prepd[0].shape}')
         amplitudes_pred_prepd = [
             np.concatenate(individual) for individual in amplitudes_pred_prepd
         ]
@@ -158,14 +160,28 @@ class RecoExperiment(BaseExperiment):
         amp_pred = amplitudes_pred_prepd[0]
         amp_truth = amplitudes_truth_prepd[0]
 
+        print(f'the predicted amplitues for further ref is: {amp_pred.shape}')
+        print(f'the true amplitues for further ref is: {amp_truth.shape}')
+
+
+        pred_pt = np.sqrt(np.sum(amp_pred[:,0,0:4]**2, axis=1)) + np.sqrt(np.sum(amp_pred[:,0,4:]**2, axis=1) )
+        true_pt = np.sqrt(np.sum(amp_truth[:,0:4]**2, axis=1)) + np.sqrt(np.sum(amp_truth[:,4:]**2, axis=1) )
+        print(f'the true pt is {true_pt.shape}')
+
+        bias_pt = np.mean((pred_pt-true_pt)/true_pt)
+        resolution_pt = np.sqrt(np.mean(((pred_pt-true_pt)/true_pt)**2- bias_pt**2))
+        print(f'the resolution is {resolution_pt.shape}')
+
+
         # compute metrics over preprocessed amplitudes
         mse_prepd = np.mean((amp_pred.flatten() - amp_truth.flatten()) ** 2)
 
         results["val_loss"] = mse_prepd
+        results["pt_bias"] = bias_pt
+        results["pt_resolution"] = resolution_pt
 
 
 
-        delta = np.sum((amp_pred.flatten() - amp_truth.flatten()) / amp_truth.flatten())
 
         # log to mlflow
         if self.cfg.use_mlflow:
@@ -180,6 +196,8 @@ class RecoExperiment(BaseExperiment):
                 "truth": amp_truth,
                 "prediction": amp_pred,
                 "mse": mse_prepd,
+                "true_pt": true_pt,
+                "pred_pt": pred_pt,
             },
         }
         results["val"] = amp

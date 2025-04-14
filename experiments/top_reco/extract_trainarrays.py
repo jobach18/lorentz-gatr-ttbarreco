@@ -6,12 +6,12 @@ import vector
 import awkward as ak
 
 
-new_data_dir = '/nfs/dust/cms/user/stafford/For_Emanuele/reconn/2007_data'
+new_data_dir = '/data/dust/user/stafford/For_Emanuele/reconn/2007_data'
 
 
 #data_dir = '/gpfs/dust/cms/user/stafford/For_Emanuele/reconn/2007_data/_TTbarDMJets_Dilepton_scalar_LO_Mchi_1_Mphi_250_TuneCP5_13TeV_madgraph_mcatnlo_pythia8.h5'
 #data_dir = '/gpfs/dust/cms/user/stafford/For_Emanuele/reconn/2907_nn_inputs/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/traindata.hdf5'
-data_dir = '/gpfs/dust/cms/user/stafford/For_Emanuele/reconn/2907_nn_inputs/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/validatedata.hdf5'
+data_dir = '/data/dust/user/stafford/For_Emanuele/reconn/2907_nn_inputs/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/validatedata.hdf5'
 with HDF5File(data_dir, "r") as f:
     df = f["data"]
 print_data = False

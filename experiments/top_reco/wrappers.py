@@ -59,11 +59,28 @@ class RecoGATrWrapper(nn.Module):
             multivector, scalars=scalars, attention_mask=mask
         )
         logits = self.extract_from_ga(
-            multivector_outputs,
+            multivector_outputs
         )
 
         return logits
 
     def extract_from_ga(self, multivector):
-        outputs = extract_vector(multivector[0, ::7, :, :])
+        summed_mv = sum_along_dimension(multivector)
+        outputs = extract_vector(summed_mv)
         return outputs
+
+def sum_along_dimension(tensor):
+    # Dimension along which to sum every 7 elements
+    dim = 1
+
+    # Ensure the dimension size is divisible by 7
+    size_to_trim = (tensor.size(dim) // 7) * 7
+    trimmed_tensor = tensor.narrow(dim, 0, size_to_trim)
+
+    # Reshape and sum along the specified dimension
+    new_shape = list(trimmed_tensor.shape)
+    new_shape[dim] = -1  # Replace the size of the target dimension with -1 (batch groups)
+    new_shape.insert(dim + 1, 7)  # Insert a new dimension of size 7
+    reshaped_tensor = trimmed_tensor.view(*new_shape)
+    summed_tensor = reshaped_tensor.sum(dim=dim + 1)
+    return summed_tensor
