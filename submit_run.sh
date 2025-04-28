@@ -13,5 +13,5 @@ module load maxwell texlive/2022
 . mamba-init
 mamba activate lgatr
 echo "starting lgatr"
-cd /beegfs/desy/user/bachjoer/ml-workspace/lgatr/
+cd /data/dust/user/bachjoer/beegfs.migration/ml-workspace/lgatr
 python3 run.py 

@@ -139,22 +139,24 @@ class RecoExperiment(BaseExperiment):
             amplitudes_truth_prepd[0].append(
                 y.cpu().float().detach().numpy()
             )
-        print(f' the predicted amplitudes: {amplitudes_pred_prepd[0][0]}')
+        #print(f' the predicted amplitudes: {amplitudes_pred_prepd[0][0][0].shape}')
+        #amplitudes_pred_prepd = np.squeeze(amplitudes_pred_prepd)
+        #amplitudes_truth_prepd = np.squeeze(amplitudes_truth_prepd)
         amplitudes_pred_prepd = [
-            np.concatenate(individual) for individual in amplitudes_pred_prepd[:-1]
+            np.concatenate(individual) for individual in amplitudes_pred_prepd
         ]
         amplitudes_truth_prepd = [
-            np.concatenate(individual) for individual in amplitudes_truth_prepd[:-1]
+            np.concatenate(individual) for individual in amplitudes_truth_prepd
         ]
-        #dt = (
-        #    (time.time() - t0)
-        #    * 1e6
-        #    / sum(arr.shape[0] for arr in amplitudes_truth_prepd)
-        #)
-        #LOGGER.info(
-        #    f"Evaluation time: {dt:.2f}s for 1M events "
-        #    f"using batchsize {self.cfg.evaluation.batchsize}"
-        #)
+        dt = (
+            (time.time() - t0)
+            * 1e6
+            / sum(arr.shape[0] for arr in amplitudes_truth_prepd)
+        )
+        LOGGER.info(
+            f"Evaluation time: {dt:.2f}s for 1M events "
+            f"using batchsize {self.cfg.evaluation.batchsize}"
+        )
 
         results = {}
         amp_pred = amplitudes_pred_prepd[0]

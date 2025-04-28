@@ -8,10 +8,10 @@ data:
 
 train: true
 training:
- iterations: 50000
+ iterations: 500
  batchsize: 128
  lr: 1e-2
- validate_every_n_steps: 5000
+ validate_every_n_steps: 500
 
  force_xformers: false
 

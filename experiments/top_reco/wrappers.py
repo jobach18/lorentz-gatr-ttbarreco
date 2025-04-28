@@ -65,8 +65,9 @@ class RecoGATrWrapper(nn.Module):
         return logits
 
     def extract_from_ga(self, multivector):
-        summed_mv = sum_along_dimension(multivector)
-        outputs = extract_vector(summed_mv)
+        #summed_mv = sum_along_dimension(multivector)
+        outputs = extract_vector(multivector[0,::7,:,:])
+        print(f'the output shape is: {outputs.shape}')
         return outputs
 
 def sum_along_dimension(tensor):

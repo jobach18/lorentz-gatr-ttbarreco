@@ -43,16 +43,8 @@ def plot_mixer(cfg, plot_path, title, plot_dict):
             ]
             simple_histogram(
                 out,
-                data[0],
-                'true pt',
-                xrange=[0,1],
-                xlabel='pt',
-                n_bins=10,
-            )
-            simple_histogram(
-                out,
-                data[0],
-                'pred pt',
+                data,
+                ['true pt', 'pred_pt'],
                 xrange=[0,1],
                 xlabel='pt',
                 n_bins=10,
@@ -406,7 +398,7 @@ def simple_histogram(
     colors = ["#0343DE", "#A52A2A"]
     dup_last = lambda a: np.append(a, a[-1])
 
-    data = [np.clip(data_i.clone(), xrange[0], xrange[1]) for data_i in data]
+    data = [np.clip(data_i, xrange[0], xrange[1]) for data_i in data]
     if logx:
         data = [np.log(data_i) for data_i in data]
         xrange = np.log(xrange)
@@ -441,7 +433,7 @@ def simple_histogram(
     if logx:
         ax.set_xscale("log")
     ax.set_xlim(xrange)
-    ax.tick_params(axis="both", labelsize=TICKLABELSIZE)
+    ax.tick_params(axis="both")
     plt.savefig(file, bbox_inches="tight", format="pdf")
     plt.close()
 
