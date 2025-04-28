@@ -8,9 +8,9 @@ data:
 
 train: true
 training:
- iterations: 5000
+ iterations: 50000
  batchsize: 128
- lr: 1e-3
+ lr: 1e-2
  validate_every_n_steps: 5000
 
  force_xformers: false
@@ -25,6 +25,7 @@ plotting:
  loss: true
  score: true
  pt_dist: true
+ pt_1dist: true
 
 defaults:
  - model: gatr_reco

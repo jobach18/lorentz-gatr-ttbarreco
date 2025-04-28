@@ -34,6 +34,30 @@ def plot_mixer(cfg, plot_path, title, plot_dict):
                 labels=["train loss", "val loss"],
                 logy=True,
             )
+    if cfg.plotting.pt_1dist and cfg.evaluate:
+        file = f"{plot_path}/histograms1d.pdf"
+        with PdfPages(file) as out:
+            data = [
+                plot_dict["results_val"]["val"]["raw"]["true_pt"],
+                plot_dict["results_val"]["val"]["raw"]["pred_pt"],
+            ]
+            simple_histogram(
+                out,
+                data[0],
+                'true pt',
+                xrange=[0,1],
+                xlabel='pt',
+                n_bins=10,
+            )
+            simple_histogram(
+                out,
+                data[0],
+                'pred pt',
+                xrange=[0,1],
+                xlabel='pt',
+                n_bins=10,
+            )
+
     if cfg.plotting.pt_dist and cfg.evaluate:
         file = f"{plot_path}/histograms.pdf"
         with PdfPages(file) as out:
