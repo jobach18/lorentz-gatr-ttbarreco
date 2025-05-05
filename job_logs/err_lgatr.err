@@ -4,20 +4,29 @@ CUDA 11.8 loaded
 /data/dust/user/bachjoer/beegfs.migration/mamba/lgatr/lib/python3.9/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'top_reco': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
   warnings.warn(msg, UserWarning)
 INFO  [lorentz-gatr] Set experiment topreco_local_debug with id 1
-[2025-05-05 12:39:38 I] Creating new experiment topreco_local_debug/GATr_7224
-[2025-05-05 12:39:38 D] Saving source to ./runs/topreco_local_debug/GATr_7224/source.zip
-[2025-05-05 12:39:38 I] Set experiment topreco_local_debug with id 1
-[2025-05-05 12:39:38 I] Using device cuda
-[2025-05-05 12:39:38 I] ### Starting experiment topreco_local_debug/GATr_7224 (id=1) ###
-[2025-05-05 12:39:40 W] Using training.force_xformers=False, this will slow down the network by a factor of 5-10.
+[2025-05-05 17:00:40 I] Creating new experiment topreco_local_debug/GATr_2640
+[2025-05-05 17:00:40 D] Saving source to ./runs/topreco_local_debug/GATr_2640/source.zip
+[2025-05-05 17:00:44 I] Set experiment topreco_local_debug with id 1
+[2025-05-05 17:00:44 I] Using device cuda
+[2025-05-05 17:00:44 I] ### Starting experiment topreco_local_debug/GATr_2640 (id=1) ###
+[2025-05-05 17:00:47 W] Using training.force_xformers=False, this will slow down the network by a factor of 5-10.
 /data/dust/user/bachjoer/beegfs.migration/mamba/lgatr/lib/python3.9/site-packages/torch/nn/init.py:452: UserWarning: Initializing zero-element tensors is a no-op
   warnings.warn("Initializing zero-element tensors is a no-op")
-[2025-05-05 12:39:40 I] Instantiated model GATr with 330876 learnable parameters
-[2025-05-05 12:39:40 I] Not using EMA
-[2025-05-05 12:39:40 I] Creating TopRecoDataset from data/train_TTTo2L2Nu_train.npz
-[2025-05-05 12:40:47 I] Finished creating datasets after 66.79 s = 1.11 min
-[2025-05-05 12:40:47 I] Constructed dataloaders with train_batches=5469, val_batches=2344, batch_size=128 (training), 128 (evaluation)
-[2025-05-05 12:40:47 I] Starting to train for 500 iterations = 0.1 epochs on a dataset with 5469 batches using early stopping with patience 100 while validating every 500 iterations
+[2025-05-05 17:00:47 I] Instantiated model GATr with 330876 learnable parameters
+[2025-05-05 17:00:47 I] Not using EMA
+[2025-05-05 17:00:47 I] Creating TopRecoDataset from data/train_TTTo2L2Nu_train.npz
+[2025-05-05 17:01:37 I] Finished creating datasets after 50.02 s = 0.83 min
+[2025-05-05 17:01:37 I] Constructed dataloaders with train_batches=5469, val_batches=2344, batch_size=128 (training), 128 (evaluation)
+[2025-05-05 17:01:37 I] Starting to train for 500 iterations = 0.1 epochs on a dataset with 5469 batches using early stopping with patience 100 while validating every 500 iterations
 /data/dust/user/bachjoer/beegfs.migration/mamba/lgatr/lib/python3.9/site-packages/numba/core/decorators.py:262: NumbaDeprecationWarning: numba.generated_jit is deprecated. Please see the documentation at: https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-generated-jit for more information and advice on a suitable replacement.
   warnings.warn(msg, NumbaDeprecationWarning)
-[2025-05-05 12:40:51 I] Finished iteration 1 after 4.62s, training time estimate: 38.49min = 0.64h
+[2025-05-05 17:01:42 I] Finished iteration 1 after 5.41s, training time estimate: 45.09min = 0.75h
+[2025-05-05 17:02:35 I] ### Starting to evaluate model on val dataset ###
+[2025-05-05 17:04:50 I] Evaluation time: 55.96s for 1M events using batchsize 128
+[2025-05-05 17:04:50 I] Finished training for 499 iterations = 0.1 epochs after 3.22min = 0.05h
+[2025-05-05 17:04:50 I] Loading model from ./runs/topreco_local_debug/GATr_2640/models/model_run0_it499.pt
+[2025-05-05 17:04:50 I] ### Starting to evaluate model on val dataset ###
+[2025-05-05 17:07:04 I] Evaluation time: 55.95s for 1M events using batchsize 128
+[2025-05-05 17:07:04 I] Creating plots in ./runs/topreco_local_debug/GATr_2640/plots_0
+[2025-05-05 17:07:07 I] GPU RAM information: max_used = 1.52 GB, max_total = 34.1 GB
+[2025-05-05 17:07:07 I] Finished experiment topreco_local_debug/GATr_2640 after 6.37min = 0.11h

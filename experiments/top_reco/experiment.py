@@ -162,14 +162,14 @@ class RecoExperiment(BaseExperiment):
 
         results = {}
         amp_pred = amplitudes_pred_prepd[0]
-        amp_truth = amplitudes_truth_prepd[0]
+        amp_truth = amplitudes_truth_prepd[0].reshape((int(amplitudes_truth_prepd[0].shape[0]/8),2,4))
 
         print(f'the predicted amplitues for further ref is: {amp_pred.shape}')
         print(f'the true amplitues for further ref is: {amp_truth.shape}')
 
 
-        pred_pt = np.sqrt(np.sum(amp_pred[:,0,0:4]**2, axis=1)) + np.sqrt(np.sum(amp_pred[:,0,4:]**2, axis=1) )
-        true_pt = np.sqrt(np.sum(amp_truth[:,0:4]**2, axis=1)) + np.sqrt(np.sum(amp_truth[:,4:]**2, axis=1) )
+        pred_pt = np.sqrt(np.sum(amp_pred[:,0,:]**2, axis=1)) + np.sqrt(np.sum(amp_pred[:,1,:]**2, axis=1) )
+        true_pt = np.sqrt(np.sum(amp_truth[:,0,:]**2, axis=1)) + np.sqrt(np.sum(amp_truth[:,1,:]**2, axis=1) )
         print(f'the true pt is {true_pt.shape}')
 
         bias_pt = np.mean((pred_pt-true_pt)/true_pt)
