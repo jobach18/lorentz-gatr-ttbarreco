@@ -89,7 +89,7 @@ class RecoExperiment(BaseExperiment):
         for batch in self.train_loader:
             data = batch.x
             labels = batch.targets
-            print(f'the targets during loading are {batch.targets.shape}')
+            #print(f'the targets during loading are {batch.targets.shape}')
             break
 
     def evaluate(self):
@@ -128,7 +128,7 @@ class RecoExperiment(BaseExperiment):
         for data in loader:
             data.to(self.device)
             y = data['targets'] 
-            print(f'the target shape is {y.shape}')
+            #print(f'the target shape is {y.shape}')
             embedding = embed_tagging_data_into_ga(
                 data.x, data.scalars, data.ptr, self.cfg.data
             )
@@ -178,7 +178,6 @@ class RecoExperiment(BaseExperiment):
 
 
         # compute metrics over preprocessed amplitudes
-        print(f'the shapes before they fail are: predicted {amp_pred.shape} and truth {amp_truth.shape}')
         mse_prepd = np.mean((amp_pred.flatten() - amp_truth.flatten()) ** 2)
 
         results["val_loss"] = mse_prepd

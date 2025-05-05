@@ -72,7 +72,6 @@ class TopRecoDataset(RecoDataset):
             # drop zero-padded components
             fourmomenta = kinematics[i, ...]
             targets_i = targets[i, ...].flatten()
-            print(f'the targets while establishing the dataset are {targets_i.shape}')
             scalars = torch.zeros(
                 fourmomenta.shape[0],
                 0,
