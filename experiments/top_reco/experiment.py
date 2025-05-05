@@ -89,6 +89,7 @@ class RecoExperiment(BaseExperiment):
         for batch in self.train_loader:
             data = batch.x
             labels = batch.targets
+            print(f'the targets during loading are {batch.targets.shape}')
             break
 
     def evaluate(self):
@@ -127,6 +128,7 @@ class RecoExperiment(BaseExperiment):
         for data in loader:
             data.to(self.device)
             y = data['targets'] 
+            print(f'the target shape is {y.shape}')
             embedding = embed_tagging_data_into_ga(
                 data.x, data.scalars, data.ptr, self.cfg.data
             )
@@ -176,6 +178,7 @@ class RecoExperiment(BaseExperiment):
 
 
         # compute metrics over preprocessed amplitudes
+        print(f'the shapes before they fail are: predicted {amp_pred.shape} and truth {amp_truth.shape}')
         mse_prepd = np.mean((amp_pred.flatten() - amp_truth.flatten()) ** 2)
 
         results["val_loss"] = mse_prepd
@@ -250,6 +253,8 @@ class RecoExperiment(BaseExperiment):
 
     def _batch_loss(self, batch):
         y_pred, label = self._get_ypred_and_label(batch)
+        print(f'the loaded label for loss is {label.shape}')
+        print(f'the pred for loss is {y_pred.shape}')
         loss = self.loss(y_pred, label)
         assert torch.isfinite(loss).all()
 
@@ -258,12 +263,15 @@ class RecoExperiment(BaseExperiment):
 
     def _get_ypred_and_label(self, batch):
         batch = batch.to(self.device)
+        targets =  batch.targets.view(int(batch.targets.shape[0]/8), 2, 4)
         embedding = embed_tagging_data_into_ga(
             batch.x, batch.scalars, batch.ptr, self.cfg.data
         )
         y_pred = self.model(embedding)
-        y_pred = y_pred[:,0]
-        return y_pred, batch.targets.to(self.dtype)
+        #print(f'the model prediction during training {y_pred.shape}')
+        #print(f'the targets during prediction are {targets.shape}')
+        #y_pred = y_pred[:,0]
+        return y_pred, targets.to(self.dtype)
 
     def _init_metrics(self):
         return {}

@@ -44,6 +44,7 @@ target = ak.concatenate([top, antitop], axis=1)
 print(target.type)
 target = ak.to_numpy(ak.concatenate([top, antitop], axis=1), allow_missing=True)
 inputarr = ak.to_numpy(ak.concatenate([jets, leptons, antileptons, bottoms, antibottoms], axis=1), allow_missing=True)
+print(target.shape)
 
-np.savez('data/train_TTTo2L2Nu_val.npz', x=inputarr, y=target)
+#np.savez('data/train_TTTo2L2Nu_val.npz', x=inputarr, y=target)
 
