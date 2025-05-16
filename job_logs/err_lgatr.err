@@ -4,25 +4,31 @@ CUDA 11.8 loaded
 /data/dust/user/bachjoer/beegfs.migration/mamba/lgatr/lib/python3.9/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'top_reco': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
   warnings.warn(msg, UserWarning)
 INFO  [lorentz-gatr] Set experiment topreco_local_debug with id 1
-[2025-05-05 17:11:38 I] Creating new experiment topreco_local_debug/GATr_5688
-[2025-05-05 17:11:38 D] Saving source to ./runs/topreco_local_debug/GATr_5688/source.zip
-[2025-05-05 17:11:38 I] Set experiment topreco_local_debug with id 1
-[2025-05-05 17:11:38 I] Using device cuda
-[2025-05-05 17:11:38 I] ### Starting experiment topreco_local_debug/GATr_5688 (id=1) ###
-[2025-05-05 17:11:40 W] Using training.force_xformers=False, this will slow down the network by a factor of 5-10.
+[2025-05-16 15:56:48 I] Creating new experiment topreco_local_debug/GATr_9211
+[2025-05-16 15:56:48 D] Saving source to ./runs/topreco_local_debug/GATr_9211/source.zip
+[2025-05-16 15:56:49 I] Set experiment topreco_local_debug with id 1
+[2025-05-16 15:56:49 I] Using device cuda
+[2025-05-16 15:56:49 I] ### Starting experiment topreco_local_debug/GATr_9211 (id=1) ###
+[2025-05-16 15:56:50 W] Using training.force_xformers=False, this will slow down the network by a factor of 5-10.
 /data/dust/user/bachjoer/beegfs.migration/mamba/lgatr/lib/python3.9/site-packages/torch/nn/init.py:452: UserWarning: Initializing zero-element tensors is a no-op
   warnings.warn("Initializing zero-element tensors is a no-op")
-[2025-05-05 17:11:40 I] Instantiated model GATr with 330876 learnable parameters
-[2025-05-05 17:11:40 I] Not using EMA
-[2025-05-05 17:11:40 I] Creating TopRecoDataset from data/train_TTTo2L2Nu_train.npz
-[2025-05-05 17:12:27 I] Finished creating datasets after 46.59 s = 0.78 min
-[2025-05-05 17:12:27 I] Constructed dataloaders with train_batches=5469, val_batches=2344, batch_size=128 (training), 128 (evaluation)
-[2025-05-05 17:12:27 I] Starting to train for 500 iterations = 0.1 epochs on a dataset with 5469 batches using early stopping with patience 100 while validating every 500 iterations
+[2025-05-16 15:56:50 I] Instantiated model GATr with 5940 learnable parameters
+[2025-05-16 15:56:50 I] Not using EMA
+[2025-05-16 15:56:50 I] Creating TopRecoDataset from data/train_TTTo2L2Nu_train_scaled.npz
+[2025-05-16 15:57:28 I] Finished creating datasets after 37.87 s = 0.63 min
+[2025-05-16 15:57:28 I] Constructed dataloaders with train_batches=2735, val_batches=1172, batch_size=256 (training), 256 (evaluation)
+[2025-05-16 15:57:28 I] Starting to train for 1 iterations = 0.0 epochs on a dataset with 2735 batches using early stopping with patience 100 while validating every 1 iterations
 /data/dust/user/bachjoer/beegfs.migration/mamba/lgatr/lib/python3.9/site-packages/numba/core/decorators.py:262: NumbaDeprecationWarning: numba.generated_jit is deprecated. Please see the documentation at: https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-generated-jit for more information and advice on a suitable replacement.
   warnings.warn(msg, NumbaDeprecationWarning)
-[2025-05-05 17:12:31 I] Finished iteration 1 after 3.96s, training time estimate: 32.96min = 0.55h
-[2025-05-05 17:13:24 I] ### Starting to evaluate model on val dataset ###
-[2025-05-05 17:15:36 I] Evaluation time: 55.32s for 1M events using batchsize 128
-[2025-05-05 17:15:36 I] Finished training for 499 iterations = 0.1 epochs after 3.16min = 0.05h
-[2025-05-05 17:15:37 I] Loading model from ./runs/topreco_local_debug/GATr_5688/models/model_run0_it499.pt
-[2025-05-05 17:15:37 I] ### Starting to evaluate model on val dataset ###
+/data/dust/user/bachjoer/beegfs.migration/mamba/lgatr/lib/python3.9/site-packages/torch/nn/modules/loss.py:535: UserWarning: Using a target size (torch.Size([256, 2, 4])) that is different to the input size (torch.Size([1, 256, 2, 4])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  return F.mse_loss(input, target, reduction=self.reduction)
+[2025-05-16 15:57:32 I] ### Starting to evaluate model on val dataset ###
+[2025-05-16 15:58:18 I] Evaluation time: 152.57s for 1M events using batchsize 256
+[2025-05-16 15:58:18 I] Finished iteration 1 after 49.85s, training time estimate: 0.83min = 0.01h
+[2025-05-16 15:58:18 I] Finished training for 0 iterations = 0.0 epochs after 0.83min = 0.01h
+[2025-05-16 15:58:18 I] Loading model from ./runs/topreco_local_debug/GATr_9211/models/model_run0_it0.pt
+[2025-05-16 15:58:18 I] ### Starting to evaluate model on val dataset ###
+[2025-05-16 15:59:03 I] Evaluation time: 151.05s for 1M events using batchsize 256
+[2025-05-16 15:59:04 I] Creating plots in ./runs/topreco_local_debug/GATr_9211/plots_0
+[2025-05-16 15:59:08 I] GPU RAM information: max_used = 0.503 GB, max_total = 42.4 GB
+[2025-05-16 15:59:08 I] Finished experiment topreco_local_debug/GATr_9211 after 2.32min = 0.04h

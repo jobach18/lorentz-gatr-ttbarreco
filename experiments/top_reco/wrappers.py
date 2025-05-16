@@ -66,7 +66,18 @@ class RecoGATrWrapper(nn.Module):
 
     def extract_from_ga(self, multivector):
         #summed_mv = sum_along_dimension(multivector)
-        outputs = extract_vector(multivector[0,::14,:,:])
+        #print('before extraction the output reads')
+        #print(multivector.shape)
+        ## (1,batch_size * seq_len, 1, 16)
+        tokens_per_item = 14  # or however many tokens per item
+        out = multivector.view(1, int(multivector.shape[1]/tokens_per_item), tokens_per_item, 2, 16)  # [1, 256, 14, 2, 16]
+        # Select the first token for each item
+        out_reduced = out[:, :, 0, :, :]  # [1, 256, 2, 16]
+        reshape_out = True
+        if reshape_out:
+            outputs =  extract_vector(out_reduced)
+        else:
+            outputs = extract_vector(multivector[0,::14,:,:]) # just pick every 14th object. 
         return outputs
 
 def sum_along_dimension(tensor):

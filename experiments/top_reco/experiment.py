@@ -88,6 +88,7 @@ class RecoExperiment(BaseExperiment):
         )
         for batch in self.train_loader:
             data = batch.x
+            #print(f'the input data is of size: {data.shape}')
             labels = batch.targets
             #print(f'the targets during loading are {batch.targets.shape}')
             break
@@ -135,20 +136,21 @@ class RecoExperiment(BaseExperiment):
             pred = self.model(
                     embedding
             )
-
+            #print(f'the network prediction during eval is {pred.cpu().float().detach().numpy().shape}')
+            #print(f'the truth during eval is {y.cpu().float().detach().numpy().shape}')
 
             amplitudes_pred_prepd[0].append(pred.cpu().float().detach().numpy())
             amplitudes_truth_prepd[0].append(
-                y.cpu().float().detach().numpy()
-            )
-        #print(f' the predicted amplitudes: {amplitudes_pred_prepd[0][0][0].shape}')
-        #amplitudes_pred_prepd = np.squeeze(amplitudes_pred_prepd)
-        #amplitudes_truth_prepd = np.squeeze(amplitudes_truth_prepd)
+                y.cpu().float().detach().numpy().reshape((1,int(
+                 y.shape[0] / 8 ), 2, 4,
+                 ))
+                )
+            
         amplitudes_pred_prepd = [
-            np.concatenate(individual) for individual in amplitudes_pred_prepd
+                np.concatenate(individual) for individual in amplitudes_pred_prepd[0]
         ]
         amplitudes_truth_prepd = [
-            np.concatenate(individual) for individual in amplitudes_truth_prepd
+                np.concatenate(individual) for individual in amplitudes_truth_prepd[0]
         ]
         dt = (
             (time.time() - t0)
@@ -161,20 +163,19 @@ class RecoExperiment(BaseExperiment):
         )
 
         results = {}
-        amp_pred = amplitudes_pred_prepd[0]
-        amp_truth = amplitudes_truth_prepd[0].reshape((int(amplitudes_truth_prepd[0].shape[0]/8),2,4))
+        amp_pred = np.concatenate(amplitudes_pred_prepd, axis=0)
+        amp_truth = np.concatenate(amplitudes_truth_prepd, axis=0)
+        #amp_pred = amplitudes_pred_prepd[0]
+        #amp_truth = amplitudes_truth_prepd[0]
 
-        print(f'the predicted amplitues for further ref is: {amp_pred.shape}')
-        print(f'the true amplitues for further ref is: {amp_truth.shape}')
 
-
-        pred_pt = np.sqrt(np.sum(amp_pred[:,0,:]**2, axis=1)) + np.sqrt(np.sum(amp_pred[:,1,:]**2, axis=1) )
-        true_pt = np.sqrt(np.sum(amp_truth[:,0,:]**2, axis=1)) + np.sqrt(np.sum(amp_truth[:,1,:]**2, axis=1) )
-        print(f'the true pt is {true_pt.shape}')
+        pred_pt = np.sqrt(np.sum(amp_pred[:,0,1:2]**2, axis=-1)) + np.sqrt(np.sum(amp_pred[:,1,1:2]**2, axis=-1) )
+        true_pt = np.sqrt(np.sum(amp_truth[:,0,1:2]**2, axis=-1)) + np.sqrt(np.sum(amp_truth[:,1,1:2]**2, axis=-1) )
+        LOGGER.info(f'the true pt shape is {true_pt.shape}')
 
         bias_pt = np.mean((pred_pt-true_pt)/true_pt)
         resolution_pt = np.sqrt(np.mean(((pred_pt-true_pt)/true_pt)**2- bias_pt**2))
-        print(f'the resolution is {resolution_pt.shape}')
+        LOGGER.info(f'the resolution shape is is {resolution_pt.shape}')
 
 
         # compute metrics over preprocessed amplitudes
@@ -252,8 +253,8 @@ class RecoExperiment(BaseExperiment):
 
     def _batch_loss(self, batch):
         y_pred, label = self._get_ypred_and_label(batch)
-        print(f'the loaded label for loss is {label.shape}')
-        print(f'the pred for loss is {y_pred.shape}')
+        #print(f'the loaded label for loss is {label.shape}')
+        #print(f'the pred for loss is {y_pred.shape}')
         loss = self.loss(y_pred, label)
         assert torch.isfinite(loss).all()
 
@@ -286,10 +287,10 @@ class TopRecoExperiment(RecoExperiment):
 
     def init_data(self):
         data_path = os.path.join(
-            self.cfg.data.data_dir, f"train_TTTo2L2Nu_train.npz"
+            self.cfg.data.data_dir, f"train_TTTo2L2Nu_train_scaled.npz"
         )
         data_path_val = os.path.join(
-            self.cfg.data.data_dir, f"train_TTTo2L2Nu_val.npz"
+            self.cfg.data.data_dir, f"train_TTTo2L2Nu_val_scaled.npz"
         )
 
         self._init_data(TopRecoDataset, data_path, data_path_val)

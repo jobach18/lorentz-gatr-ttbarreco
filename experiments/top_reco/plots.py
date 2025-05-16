@@ -45,9 +45,9 @@ def plot_mixer(cfg, plot_path, title, plot_dict):
                 out,
                 data,
                 ['true pt', 'pred_pt'],
-                xrange=[0,1],
+                xrange=[0,400],
                 xlabel='pt',
-                n_bins=10,
+                n_bins=50,
             )
 
     if cfg.plotting.pt_dist and cfg.evaluate:
@@ -65,10 +65,10 @@ def plot_mixer(cfg, plot_path, title, plot_dict):
                 'pt Reconstruction',
                 'true pt',
                 'predicted pt',
-                [0,1],
-                [0,1],
+                [0,400],
+                [0,400],
                 'lgatr',
-                n_bins=100,
+                n_bins=50,
             )
 
 
@@ -341,7 +341,6 @@ def plot_histogram_2d(
     fig, axs = plt.subplots(1, len(data), figsize=(4 * len(data), 4))
     for ax, subtitle in zip(axs, subtitles):
         ax.set_title(subtitle)
-        print(f'the data in the plot routine is {data[0]}')
         ax.hist2d(
             data[0],
             data[1],
