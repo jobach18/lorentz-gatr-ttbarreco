@@ -1,6 +1,8 @@
 import torch
 import numpy as np
 from torch_geometric.data import Data
+from experiments.logger import LOGGER
+import os, json
 
 EPS = 1e-5
 
@@ -42,6 +44,7 @@ class TopRecoDataset(RecoDataset):
     def load_data(
         self,
         filename,
+        data_scale=None,
         dtype=torch.float32,
     ):
         """
@@ -65,17 +68,90 @@ class TopRecoDataset(RecoDataset):
         kinematics = torch.tensor(kinematics, dtype=dtype)
         targets = torch.tensor(targets, dtype=dtype)
 
+        if data_scale=='lorentz_norm':
+            #print(f'the kinematics shape before normalization is {kinematics.shape}')
+            #print(f'the target shape before normalization is {targets.shape}')
+            print(f' the scaling gave us: {torch.max(kinematics)} to {torch.min(kinematics)} kin. range')
+            scale = 1.0 / (torch.sqrt(torch.abs(kinematics[:, :, 0]**2 - torch.sum(kinematics[:, :, 1:]**2, dim=-1)))+1e-8)
+            scale = scale.unsqueeze(-1)  
+            kinematics = kinematics * scale 
+            scale = 1.0 / (torch.abs(torch.sqrt(targets[:, :, 0]**2 - torch.sum(targets[:, :, 1:]**2, dim=-1)))+1e-8)
+            scale = scale.unsqueeze(-1)  
+            #print(f'the scale shape is{scale.shape}')
+            targets = targets * scale
+            print(f' the scaling gave us: {torch.max(targets)} to {torch.min(targets)} range')
+            print(f' the scaling gave us: {torch.max(kinematics)} to {torch.min(kinematics)} kin. range')
+            #print(f'the kinematics shape after normalization is {kinematics.shape}')
+            #print(f'the target shape after normalization is {targets.shape}')
+        if data_scale=='std':
+            scale = torch.std(kinematics)
+            kinematics = kinematics / scale
+            targets = targets / scale
+        # scaling by 1 / (1/4 * minkNorm)
+        mode = "minkNorm"
+        def minkowski_norm(vectors):
+            E = vectors[..., 0]
+            p = vectors[..., 1:]
+            norm = torch.sqrt(torch.clamp(E**2 - p.pow(2).sum(dim=-1), min=EPS))
+            return norm.unsqueeze(-1)
+        
+        kin_norms = 0.25 * minkowski_norm(kinematics)
+        kinematics = kinematics / kin_norms
+        tar_norms = 0.25 * minkowski_norm(targets)
+        targets = targets / tar_norms
+        
+        # store scaling factors
+        norms_dict = {
+            "kin_norms": kin_norms.tolist(),
+            "tar_norms": tar_norms.tolist()
+        }
+
+        if "val_scaled" in filename:
+            tag="val"
+            #LOGGER.info(f"Storing input scaling factors computed on {tag} data via {mode}.")
+            LOGGER.info(f"Storing scaling_factors_lambda4.json")
+            os.makedirs("results_to_notebook/lr_1e-4", exist_ok=True)
+            # json_path = os.path.join("results_to_notebook", f"scaling_factors_{tag}_{mode}.json")
+            json_path = os.path.join("results_to_notebook/lr_1e-4", f"scaling_factors_lambda4.json")
+            with open(json_path, "w") as json_file:
+                json.dump(norms_dict, json_file, default=str)
+
         # create list of torch_geometric.data.Data objects
         # drop zero-padded components
         self.data_list = []
+        metpt_as_scalar = True
+        if metpt_as_scalar:
+            metpt = kinematics[:,11,0]
+            kinematics = kinematics[:,:-1,:]
         for i in range(kinematics.shape[0]):
             # drop zero-padded components
             fourmomenta = kinematics[i, ...]
             targets_i = targets[i, ...].flatten()
-            scalars = torch.zeros(
-                fourmomenta.shape[0],
-                0,
-                dtype=dtype,
-            )  # no scalar information
+            if metpt_as_scalar:
+                scalars = torch.zeros(
+                    fourmomenta.shape[0],
+                    0,
+                    dtype=dtype,
+                ) + metpt[i] 
+                print(f'the value of metpt is {metpt[i]}')
+                print(scalars.shape)
+                print('and should be')
+                print(torch.zeros(
+                    fourmomenta.shape[0],
+                    0,
+                    dtype=dtype,
+                ).shape)
+                assert(scalars.shape == torch.zeros(
+                    fourmomenta.shape[0],
+                    0,
+                    dtype=dtype,
+                ).shape)  # no scalar information
+
+            else:
+                scalars = torch.zeros(
+                    fourmomenta.shape[0],
+                    0,
+                    dtype=dtype,
+                )  # no scalar information
             data = Data(x=fourmomenta, scalars=scalars, targets=targets_i)
             self.data_list.append(data)

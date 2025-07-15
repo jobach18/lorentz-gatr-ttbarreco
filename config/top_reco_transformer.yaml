@@ -1,0 +1,28 @@
+exp_type: top_reco_transformer
+exp_name: top_reco_transformer_comparison
+
+data:
+  data_dir: data/
+  train_file: data/train_TTTo2L2Nu_train_scaled_genbot.npz
+  val_file: data/train_TTTo2L2Nu_val_scaled_genbot.npz
+  data_scale: minkNorm
+
+train: true
+training:
+  iterations: 40000
+  batchsize: 64        # Smaller batch size for transformer
+  lr: 1e-4
+  optimizer: Adam      # Use Adam instead of ScheduleFree
+  validate_every_n_steps: 10000
+
+evaluation:
+  batchsize: 32
+  save_results: true
+  eval_set: [val]
+
+plotting:
+  loss: true
+
+defaults:
+  - model: transformer_reco
+  - default

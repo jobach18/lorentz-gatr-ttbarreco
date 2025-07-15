@@ -20,7 +20,7 @@ ga_representations:
 train: true
 training:
  iterations : 20
- train_test_val: [.4, .5, .1]
+ train_test_val: [.9, .05, .05]
  subsample: null
  es_patience: 100
  es_load_best_model: true

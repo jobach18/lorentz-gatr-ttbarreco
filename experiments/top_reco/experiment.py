@@ -3,6 +3,7 @@ import torch
 from torch_geometric.loader import DataLoader
 
 import os, time
+import json
 from omegaconf import open_dict
 
 from sklearn.metrics import roc_curve, roc_auc_score, accuracy_score
@@ -26,6 +27,7 @@ class RecoExperiment(BaseExperiment):
 
     def _init_loss(self):
         self.loss = torch.nn.MSELoss()
+        #self.loss = torch.nn.SmoothL1Loss(beta=0.01)
 
     def init_physics(self):
         if not self.cfg.training.force_xformers:
@@ -64,8 +66,8 @@ class RecoExperiment(BaseExperiment):
         t0 = time.time()
         self.data_train = Dataset()
         self.data_val = Dataset()
-        self.data_train.load_data(data_path)
-        self.data_val.load_data(data_path_val)
+        self.data_train.load_data(data_path)#, data_scale='std')
+        self.data_val.load_data(data_path_val)#, data_scale='std')
         dt = time.time() - t0
         LOGGER.info(f"Finished creating datasets after {dt:.2f} s = {dt/60:.2f} min")
 
@@ -111,9 +113,29 @@ class RecoExperiment(BaseExperiment):
                 )
 
             else:
-                self.results[set_label] = self._evaluate_single(
-                    loader_dict[set_label], set_label
-                )
+                # self.results[set_label] = self._evaluate_single(
+                #     loader_dict[set_label], set_label
+                # )               
+                
+                result = self._evaluate_single(loader_dict[set_label], set_label)
+                
+                result_temp = result
+                result_temp["val"]["raw"]["truth"] = result_temp["val"]["raw"]["truth"].tolist()
+                result_temp["val"]["raw"]["prediction"] = result_temp["val"]["raw"]["prediction"].tolist()
+                result_temp["val"]["raw"]["true_pt"] = result_temp["val"]["raw"]["true_pt"].tolist()
+                result_temp["val"]["raw"]["pred_pt"] = result_temp["val"]["raw"]["pred_pt"].tolist()
+                
+                LOGGER.info(f"Creating result_{set_label}_lambda4.json.")
+                os.makedirs("results_to_notebook/lr_1e-4", exist_ok=True)
+                json_path = os.path.join("results_to_notebook/lr_1e-4", f"result_{set_label}_lambda4.json")
+                with open(json_path, "w") as json_file:
+                    json.dump(result_temp, json_file, default=str)
+
+                self.results[set_label] = result
+                #self.results[set_label] = self._evaluate_single(
+                #    loader_dict[set_label], set_label
+                #)
+            return result['val']['raw']['mse']
 
     def _evaluate_single(self, loader, title, step=None):
         # compute predictions
@@ -287,10 +309,10 @@ class TopRecoExperiment(RecoExperiment):
 
     def init_data(self):
         data_path = os.path.join(
-            self.cfg.data.data_dir, f"train_TTTo2L2Nu_train_scaled.npz"
+            self.cfg.data.data_dir, f"train_TTTo2L2Nu_train_scaled_genbot.npz"
         )
         data_path_val = os.path.join(
-            self.cfg.data.data_dir, f"train_TTTo2L2Nu_val_scaled.npz"
+            self.cfg.data.data_dir, f"train_TTTo2L2Nu_val_scaled_genbot.npz"
         )
 
         self._init_data(TopRecoDataset, data_path, data_path_val)

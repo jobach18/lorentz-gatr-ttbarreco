@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import math
 
 import os, time
 import zipfile
@@ -39,7 +40,13 @@ class BaseExperiment:
     def __call__(self):
         # pass all exceptions to the logger
         try:
-            self.run_mlflow()
+            res = self.run_mlflow()
+            res = float(res)
+            LOGGER.info(
+                    f'the returned result of the mlflow run is {res}'
+                    )
+            assert isinstance(res, (int, float)) and not math.isnan(res)
+            return float(res)
         except errors.ConfigAttributeError:
             LOGGER.exception(
                 "Tried to access key that is not specified in the config files"
@@ -53,6 +60,11 @@ class BaseExperiment:
             stream_handler.setLevel(logging.DEBUG)
             MEMORY_HANDLER.setTarget(stream_handler)
             MEMORY_HANDLER.close()
+        if isinstance(res, float):
+            return res 
+        else:
+            print(f"[ERROR] Trial failed with:")
+            return 1e6  # Bad score for Optuna to discard this trial
 
     def run_mlflow(self):
         experiment_id, run_name = self._init()
@@ -61,10 +73,11 @@ class BaseExperiment:
         )
         if self.cfg.use_mlflow:
             with mlflow.start_run(experiment_id=experiment_id, run_name=run_name):
-                self.full_run()
+                res = self.full_run()
         else:
             # dont use mlflow
-            self.full_run()
+            res = self.full_run()
+        return res
 
     def full_run(self):
         # implement all ml boilerplate as private methods (_name)
@@ -88,7 +101,7 @@ class BaseExperiment:
             self._save_model()
 
         if self.cfg.evaluate:
-            self.evaluate()
+            res = self.evaluate()
 
         if self.cfg.plot and self.cfg.save:
             self.plot()
@@ -103,6 +116,7 @@ class BaseExperiment:
         LOGGER.info(
             f"Finished experiment {self.cfg.exp_name}/{self.cfg.run_name} after {dt/60:.2f}min = {dt/60**2:.2f}h"
         )
+        return res
 
     def init_model(self):
         gatr.layers.linear.MIX_DUALS = self.cfg.ga_representations.mix_duals

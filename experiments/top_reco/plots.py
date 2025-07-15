@@ -45,7 +45,7 @@ def plot_mixer(cfg, plot_path, title, plot_dict):
                 out,
                 data,
                 ['true pt', 'pred_pt'],
-                xrange=[0,400],
+                xrange=[0,6],
                 xlabel='pt',
                 n_bins=50,
             )
@@ -65,8 +65,8 @@ def plot_mixer(cfg, plot_path, title, plot_dict):
                 'pt Reconstruction',
                 'true pt',
                 'predicted pt',
-                [0,400],
-                [0,400],
+                [0,6],
+                [0,6],
                 'lgatr',
                 n_bins=50,
             )

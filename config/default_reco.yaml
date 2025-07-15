@@ -8,16 +8,16 @@ data:
 
 train: true
 training:
- iterations: 1 #2500
+ iterations: 15000
  batchsize: 256
  lr: 1e-4
- scheduler: ReduceLROnPlateau
- validate_every_n_steps: 1 #500
+ optimizer: ScheduleFree
+ validate_every_n_steps: 5000
 
  force_xformers: false
 
 evaluation:
- batchsize: 256
+ batchsize: 128
  save_roc: false
  eval_set: [val]
 
