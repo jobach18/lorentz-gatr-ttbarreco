@@ -66,8 +66,8 @@ class RecoExperiment(BaseExperiment):
         t0 = time.time()
         self.data_train = Dataset()
         self.data_val = Dataset()
-        self.data_train.load_data(data_path)#, data_scale='std')
-        self.data_val.load_data(data_path_val)#, data_scale='std')
+        self.data_train.load_data(data_path, scalar_target=self.cfg.training.scalar_target)#, data_scale='std')
+        self.data_val.load_data(data_path_val, scalar_target=self.cfg.training.scalar_target)#, data_scale='std')
         dt = time.time() - t0
         LOGGER.info(f"Finished creating datasets after {dt:.2f} s = {dt/60:.2f} min")
 
@@ -93,6 +93,10 @@ class RecoExperiment(BaseExperiment):
             #print(f'the input data is of size: {data.shape}')
             labels = batch.targets
             #print(f'the targets during loading are {batch.targets.shape}')
+            scalars_targ = batch.scalar_targets if hasattr(batch, 'scalar_targets') else None
+            if scalars_targ is not None:
+                #print(f'the scalars during loading are {scalars.shape}')
+                assert scalars_targ.shape[0] == data.shape[0], "Scalars and data must match size"
             break
 
     def evaluate(self):
@@ -122,6 +126,10 @@ class RecoExperiment(BaseExperiment):
                 result_temp = result
                 result_temp["val"]["raw"]["truth"] = result_temp["val"]["raw"]["truth"].tolist()
                 result_temp["val"]["raw"]["prediction"] = result_temp["val"]["raw"]["prediction"].tolist()
+                if result_temp["val"]["raw"]["scalar_truth"] is not None:
+                    result_temp["val"]["raw"]["scalar_truth"] = result_temp["val"]["raw"]["scalar_truth"].tolist()
+                if result_temp["val"]["raw"]["scalar_prediction"] is not None:
+                    result_temp["val"]["raw"]["scalar_prediction"] = result_temp["val"]["raw"]["scalar_prediction"].tolist()
                 result_temp["val"]["raw"]["true_pt"] = result_temp["val"]["raw"]["true_pt"].tolist()
                 result_temp["val"]["raw"]["pred_pt"] = result_temp["val"]["raw"]["pred_pt"].tolist()
                 
@@ -140,9 +148,10 @@ class RecoExperiment(BaseExperiment):
     def _evaluate_single(self, loader, title, step=None):
         # compute predictions
         # note: shuffle=True or False does not matter, because we take the predictions directly from the dataloader and not from the dataset
-        amplitudes_truth_prepd, amplitudes_pred_prepd = [
-            [] for _ in range(1)
-        ], [[] for _ in range(1)]
+        amplitudes_truth_prepd = [[] for _ in range(1)]
+        amplitudes_pred_prepd = [[] for _ in range(1)]
+        amplitudes_scalar_truth_prepd = [[] for _ in range(1)]
+        amplitudes_scalar_pred_prepd = [[] for _ in range(1)]
         LOGGER.info(f"### Starting to evaluate model on {title} dataset ###")
         self.model.eval()
         if self.cfg.training.optimizer == "ScheduleFree":
@@ -151,11 +160,12 @@ class RecoExperiment(BaseExperiment):
         for data in loader:
             data.to(self.device)
             y = data['targets'] 
+            y_sc = data['scalar_targets'] if hasattr(data, 'scalar_targets') else None
             #print(f'the target shape is {y.shape}')
             embedding = embed_tagging_data_into_ga(
                 data.x, data.scalars, data.ptr, self.cfg.data
             )
-            pred = self.model(
+            pred, pred_sc = self.model(
                     embedding
             )
             #print(f'the network prediction during eval is {pred.cpu().float().detach().numpy().shape}')
@@ -167,6 +177,14 @@ class RecoExperiment(BaseExperiment):
                  y.shape[0] / 8 ), 2, 4,
                  ))
                 )
+            amplitudes_scalar_pred_prepd[0].append(
+                pred_sc.cpu().float().detach().numpy(
+                 )) if y_sc is not None else None
+            amplitudes_scalar_truth_prepd[0].append(
+                y_sc.cpu().float().detach().numpy().reshape((1,int(
+                 y_sc.shape[0] / 2 ), 2,
+                 )) if y_sc is not None else None
+            )
             
         amplitudes_pred_prepd = [
                 np.concatenate(individual) for individual in amplitudes_pred_prepd[0]
@@ -174,6 +192,12 @@ class RecoExperiment(BaseExperiment):
         amplitudes_truth_prepd = [
                 np.concatenate(individual) for individual in amplitudes_truth_prepd[0]
         ]
+        amplitudes_scalar_pred_prepd = [
+                np.concatenate(individual) for individual in amplitudes_scalar_pred_prepd[0]
+        ] if y_sc is not None else None
+        amplitudes_scalar_truth_prepd = [
+                np.concatenate(individual) for individual in amplitudes_scalar_truth_prepd[0]
+        ] if y_sc is not None else None 
         dt = (
             (time.time() - t0)
             * 1e6
@@ -187,6 +211,14 @@ class RecoExperiment(BaseExperiment):
         results = {}
         amp_pred = np.concatenate(amplitudes_pred_prepd, axis=0)
         amp_truth = np.concatenate(amplitudes_truth_prepd, axis=0)
+        if y_sc is not None:
+            amplitudes_scalar_pred_prepd = np.concatenate(amplitudes_scalar_pred_prepd, axis=0)
+            amplitudes_scalar_truth_prepd = np.concatenate(amplitudes_scalar_truth_prepd, axis=0)
+            LOGGER.info(f'the scalar pred shape is {amplitudes_scalar_pred_prepd.shape}')
+            LOGGER.info(f'the scalar truth shape is {amplitudes_scalar_truth_prepd.shape}')
+        else:
+            amplitudes_scalar_pred_prepd = None
+            amplitudes_scalar_truth_prepd = None
         #amp_pred = amplitudes_pred_prepd[0]
         #amp_truth = amplitudes_truth_prepd[0]
 
@@ -210,6 +242,7 @@ class RecoExperiment(BaseExperiment):
 
 
 
+
         # log to mlflow
         if self.cfg.use_mlflow:
             log_dict = {
@@ -222,6 +255,8 @@ class RecoExperiment(BaseExperiment):
             "raw": {
                 "truth": amp_truth,
                 "prediction": amp_pred,
+                "scalar_truth": amplitudes_scalar_truth_prepd,
+                "scalar_prediction": amplitudes_scalar_pred_prepd,
                 "mse": mse_prepd,
                 "true_pt": true_pt,
                 "pred_pt": pred_pt,
@@ -274,10 +309,13 @@ class RecoExperiment(BaseExperiment):
         return metrics["val_loss"]
 
     def _batch_loss(self, batch):
-        y_pred, label = self._get_ypred_and_label(batch)
+        y_pred, y_scalar, targets, targets_sc = self._get_ypred_and_label(batch)
         #print(f'the loaded label for loss is {label.shape}')
         #print(f'the pred for loss is {y_pred.shape}')
-        loss = self.loss(y_pred, label)
+        if self.cfg.training.scalar_target:
+            loss = self.loss(y_pred, targets) + self.cfg.training.lambdaloss * self.loss(y_scalar, targets_sc)
+        else:
+            loss = self.loss(y_pred, targets)
         assert torch.isfinite(loss).all()
 
         metrics = {}
@@ -285,15 +323,19 @@ class RecoExperiment(BaseExperiment):
 
     def _get_ypred_and_label(self, batch):
         batch = batch.to(self.device)
-        targets =  batch.targets.view(int(batch.targets.shape[0]/8), 2, 4)
+        if self.cfg.training.scalar_target:
+            targets = batch.targets.view(int(batch.targets.shape[0]/8), 2, 4)
+            targets_sc = batch.targets_sc.view(int(batch.targets_sc.shape[0]/2), 2) 
+        else:
+            targets = batch.targets.view(int(batch.targets.shape[0]/8), 2, 4)
         embedding = embed_tagging_data_into_ga(
             batch.x, batch.scalars, batch.ptr, self.cfg.data
         )
-        y_pred = self.model(embedding)
-        #print(f'the model prediction during training {y_pred.shape}')
+        y_pred, y_scalar = self.model(embedding)
+        #LOGGER.info(f'the model prediction during training {y_scalar.shape}')
         #print(f'the targets during prediction are {targets.shape}')
         #y_pred = y_pred[:,0]
-        return y_pred, targets.to(self.dtype)
+        return y_pred, y_scalar, targets.to(self.dtype), targets_sc.to(self.dtype) if self.cfg.training.scalar_target else None
 
     def _init_metrics(self):
         return {}

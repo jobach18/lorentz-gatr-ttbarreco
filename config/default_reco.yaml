@@ -8,13 +8,15 @@ data:
 
 train: true
 training:
- iterations: 15000
+ iterations: 150000
  batchsize: 256
  lr: 1e-4
  optimizer: ScheduleFree
  validate_every_n_steps: 5000
 
  force_xformers: false
+ scalar_target: true
+ lambdaloss: 10
 
 evaluation:
  batchsize: 128

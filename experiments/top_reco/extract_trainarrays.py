@@ -54,12 +54,17 @@ antitop = ak.concatenate([df["atop_t"][:, np.newaxis, np.newaxis]*scale['atop_t'
 
 print(f'the maximum top component is {np.max(top)}')
 
+chel = df["chel"]*scale['chel'] + offset['chel']
+mtt = df["mtt"] * scale['mtt'] + offset['mtt']
+
+target_scalar = ak.to_numpy(ak.concatenate([chel[:, np.newaxis], mtt[:, np.newaxis]], axis=1), allow_missing=True)
+
 target = ak.concatenate([top, antitop], axis=1)
 print(target.type)
 target = ak.to_numpy(ak.concatenate([top, antitop], axis=1), allow_missing=True)
 inputarr = ak.to_numpy(ak.concatenate([jets, leptons, antileptons, bottoms, antibottoms, met], axis=1), allow_missing=True)
 print(target.shape)
 
-np.savez('data/train_TTTo2L2Nu_train_scaled_genbot.npz', x=inputarr, y=target)
-#np.savez('data/train_TTTo2L2Nu_val_scaled_genbot.npz', x=inputarr, y=target)
+np.savez('data/train_TTTo2L2Nu_train_scaled_genbot.npz', x=inputarr, y=target, scalars=target_scalar)
+#np.savez('data/train_TTTo2L2Nu_val_scaled_genbot.npz', x=inputarr, y=target, scalars=target_scalar)
 

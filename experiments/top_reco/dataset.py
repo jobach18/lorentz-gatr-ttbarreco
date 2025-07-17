@@ -45,6 +45,7 @@ class TopRecoDataset(RecoDataset):
         self,
         filename,
         data_scale=None,
+        scalar_target = False,
         dtype=torch.float32,
     ):
         """
@@ -62,6 +63,8 @@ class TopRecoDataset(RecoDataset):
         data = np.load(filename)
         kinematics = data["x"]
         targets = data["y"]
+        if scalar_target:
+            sc_targets = data["scalars"]
 
         # preprocessing
 
@@ -99,12 +102,22 @@ class TopRecoDataset(RecoDataset):
         kinematics = kinematics / kin_norms
         tar_norms = 0.25 * minkowski_norm(targets)
         targets = targets / tar_norms
-        
+        if scalar_target:
+            sc_targets = torch.tensor(sc_targets, dtype=dtype)
+            sc_tar_norms = torch.abs(sc_targets).max(dim=0, keepdim=True).values
+            sc_targets = sc_targets / sc_tar_norms
         # store scaling factors
-        norms_dict = {
-            "kin_norms": kin_norms.tolist(),
-            "tar_norms": tar_norms.tolist()
-        }
+        if scalar_target:
+            norms_dict = {
+                "kin_norms": kin_norms.tolist(),
+                "tar_norms": tar_norms.tolist(),
+                "sc_tar_norms": sc_tar_norms.tolist()
+            }
+        else:
+            norms_dict = {
+                "kin_norms": kin_norms.tolist(),
+                "tar_norms": tar_norms.tolist()
+            }
 
         if "val_scaled" in filename:
             tag="val"
@@ -127,6 +140,7 @@ class TopRecoDataset(RecoDataset):
             # drop zero-padded components
             fourmomenta = kinematics[i, ...]
             targets_i = targets[i, ...].flatten()
+        
             if metpt_as_scalar:
                 scalars = torch.zeros(
                     fourmomenta.shape[0],
@@ -153,5 +167,5 @@ class TopRecoDataset(RecoDataset):
                     0,
                     dtype=dtype,
                 )  # no scalar information
-            data = Data(x=fourmomenta, scalars=scalars, targets=targets_i)
+            data = Data(x=fourmomenta, scalars=scalars, targets=targets_i, targets_sc=sc_targets[i,...].flatten() if scalar_target else None)
             self.data_list.append(data)

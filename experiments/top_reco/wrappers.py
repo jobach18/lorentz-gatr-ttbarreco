@@ -61,8 +61,15 @@ class RecoGATrWrapper(nn.Module):
         logits = self.extract_from_ga(
             multivector_outputs
         )
+        scalar_outputs = self.extract_scalar(scalar_outputs)
 
-        return logits
+        return logits, scalar_outputs
+
+    def extract_scalar(self, sc_multivector):
+        # Extract scalar values from the multivector
+        tokens_per_item = 11 + 3  # or however many tokens per item
+        out = sc_multivector.view(1, int(sc_multivector.shape[1]/tokens_per_item), tokens_per_item, 2)  # [1, 256, 14, 2]
+        return out[:,:,0,:]
 
     def extract_from_ga(self, multivector):
         #summed_mv = sum_along_dimension(multivector)
