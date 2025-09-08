@@ -12,7 +12,7 @@ from experiments.tagging.jetclassexperiment import JetClassTaggingExperiment
 from experiments.tagging.finetuneexperiment import TopTaggingFineTuneExperiment
 
 
-@hydra.main(config_path="config", config_name="top_reco_transformer", version_base=None)
+@hydra.main(config_path="config", config_name="top_reco", version_base=None)
 def main(cfg):
     if cfg.exp_type == "amplitudes":
         exp = AmplitudeExperiment(cfg)

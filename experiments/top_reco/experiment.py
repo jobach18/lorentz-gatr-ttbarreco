@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import torch.nn.functional as F
 from torch_geometric.loader import DataLoader
 
 import os, time
@@ -19,6 +20,35 @@ MODEL_TITLE_DICT = {"GATr": "GATr"}
 
 UNITS = 40  # We use units of 40 GeV for all tagging experiments
 
+def mse_symmetrized(predictions: torch.Tensor,
+             targets: torch.Tensor,
+             *,
+             allow_swap: bool = True,
+             ) -> torch.Tensor:
+    """Calculate the mean squared error loss.
+
+    Args:
+        predictions (torch.Tensor): The predicted values. Shape (batch_size, 2, 4).
+        targets (torch.Tensor): The ground truth values. Shape (batch_size, 2, 4).
+
+    Returns:
+        torch.Tensor: The computed mean squared error loss.
+
+    """
+    predictions = predictions[0,:,:,:]
+    targets = targets[0,:,:,:]
+    #print(f' for debugging in the loss: predictions shape: {predictions.shape} targets shape: {targets.shape}')
+    if not allow_swap:
+        return F.mse_loss(predictions, targets, reduction="mean")
+
+    # Take the minimum loss for each event
+    # Option 1: no swap
+    mse_noswap = F.mse_loss(predictions, targets, reduction="none").mean(dim=(1, 2))
+
+    # Option 2: swap predicted tops
+    pred_swapped = predictions[:, [1, 0], :]
+    mse_swap = F.mse_loss(pred_swapped, targets, reduction="none").mean(dim=(1, 2))
+    return torch.mean(torch.minimum(mse_noswap, mse_swap))
 
 class RecoExperiment(BaseExperiment):
     """
@@ -26,7 +56,8 @@ class RecoExperiment(BaseExperiment):
     """
 
     def _init_loss(self):
-        self.loss = torch.nn.MSELoss()
+        #self.loss = torch.nn.MSELoss()
+        self.loss = mse_symmetrized
         #self.loss = torch.nn.SmoothL1Loss(beta=0.01)
 
     def init_physics(self):
@@ -125,6 +156,7 @@ class RecoExperiment(BaseExperiment):
                 
                 result_temp = result
                 result_temp["val"]["raw"]["truth"] = result_temp["val"]["raw"]["truth"].tolist()
+                result_temp["val"]["raw"]["input"] = result_temp["val"]["raw"]["input"].tolist()
                 result_temp["val"]["raw"]["prediction"] = result_temp["val"]["raw"]["prediction"].tolist()
                 if result_temp["val"]["raw"]["scalar_truth"] is not None:
                     result_temp["val"]["raw"]["scalar_truth"] = result_temp["val"]["raw"]["scalar_truth"].tolist()
@@ -149,6 +181,7 @@ class RecoExperiment(BaseExperiment):
         # compute predictions
         # note: shuffle=True or False does not matter, because we take the predictions directly from the dataloader and not from the dataset
         amplitudes_truth_prepd = [[] for _ in range(1)]
+        amplitudes_lepton_prepd = [[] for _ in range(1)]
         amplitudes_pred_prepd = [[] for _ in range(1)]
         amplitudes_scalar_truth_prepd = [[] for _ in range(1)]
         amplitudes_scalar_pred_prepd = [[] for _ in range(1)]
@@ -172,6 +205,7 @@ class RecoExperiment(BaseExperiment):
             #print(f'the truth during eval is {y.cpu().float().detach().numpy().shape}')
 
             amplitudes_pred_prepd[0].append(pred.cpu().float().detach().numpy())
+            amplitudes_lepton_prepd[0].append(data.x.cpu().float().detach().numpy())
             amplitudes_truth_prepd[0].append(
                 y.cpu().float().detach().numpy().reshape((1,int(
                  y.shape[0] / 8 ), 2, 4,
@@ -192,6 +226,9 @@ class RecoExperiment(BaseExperiment):
         amplitudes_truth_prepd = [
                 np.concatenate(individual) for individual in amplitudes_truth_prepd[0]
         ]
+        amplitudes_lepton_prepd = [
+                np.concatenate(individual) for individual in amplitudes_lepton_prepd[0]
+        ]
         amplitudes_scalar_pred_prepd = [
                 np.concatenate(individual) for individual in amplitudes_scalar_pred_prepd[0]
         ] if y_sc is not None else None
@@ -211,6 +248,7 @@ class RecoExperiment(BaseExperiment):
         results = {}
         amp_pred = np.concatenate(amplitudes_pred_prepd, axis=0)
         amp_truth = np.concatenate(amplitudes_truth_prepd, axis=0)
+        amp_lepton = np.concatenate(amplitudes_lepton_prepd, axis=0)
         if y_sc is not None:
             amplitudes_scalar_pred_prepd = np.concatenate(amplitudes_scalar_pred_prepd, axis=0)
             amplitudes_scalar_truth_prepd = np.concatenate(amplitudes_scalar_truth_prepd, axis=0)
@@ -240,9 +278,6 @@ class RecoExperiment(BaseExperiment):
         results["pt_resolution"] = resolution_pt
 
 
-
-
-
         # log to mlflow
         if self.cfg.use_mlflow:
             log_dict = {
@@ -257,6 +292,7 @@ class RecoExperiment(BaseExperiment):
                 "prediction": amp_pred,
                 "scalar_truth": amplitudes_scalar_truth_prepd,
                 "scalar_prediction": amplitudes_scalar_pred_prepd,
+                "inputs":amplitudes_lepton_prepd,
                 "mse": mse_prepd,
                 "true_pt": true_pt,
                 "pred_pt": pred_pt,
@@ -324,13 +360,14 @@ class RecoExperiment(BaseExperiment):
     def _get_ypred_and_label(self, batch):
         batch = batch.to(self.device)
         if self.cfg.training.scalar_target:
-            targets = batch.targets.view(int(batch.targets.shape[0]/8), 2, 4)
+            targets = batch.targets.view(1,int(batch.targets.shape[0]/8), 2, 4)
             targets_sc = batch.targets_sc.view(int(batch.targets_sc.shape[0]/2), 2) 
         else:
-            targets = batch.targets.view(int(batch.targets.shape[0]/8), 2, 4)
+            targets = batch.targets.view(1,int(batch.targets.shape[0]/8), 2, 4)
         embedding = embed_tagging_data_into_ga(
             batch.x, batch.scalars, batch.ptr, self.cfg.data
         )
+        #print(f'the model inputs have shape {batch.x.shape}')
         y_pred, y_scalar = self.model(embedding)
         #LOGGER.info(f'the model prediction during training {y_scalar.shape}')
         #print(f'the targets during prediction are {targets.shape}')
@@ -351,10 +388,10 @@ class TopRecoExperiment(RecoExperiment):
 
     def init_data(self):
         data_path = os.path.join(
-            self.cfg.data.data_dir, f"train_TTTo2L2Nu_train_scaled_genbot.npz"
+            self.cfg.data.data_dir, f"train_TTTo2L2Nu_train_scaled.npz"
         )
         data_path_val = os.path.join(
-            self.cfg.data.data_dir, f"train_TTTo2L2Nu_val_scaled_genbot.npz"
+            self.cfg.data.data_dir, f"train_TTTo2L2Nu_val_scaled.npz"
         )
 
         self._init_data(TopRecoDataset, data_path, data_path_val)

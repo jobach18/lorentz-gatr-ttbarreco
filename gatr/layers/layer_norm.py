@@ -58,13 +58,16 @@ class EquiLayerNorm(nn.Module):
         output_scalars : torch.Tensor with shape (..., self.out_channels, self.in_scalars)
             Normalized scalars.
         """
-
         outputs_mv = equi_layer_norm(
             multivectors, channel_dim=self.mv_channel_dim, epsilon=self.epsilon
         )
-        normalized_shape = scalars.shape[-1:]
-        outputs_s = torch.nn.functional.layer_norm(
-            scalars, normalized_shape=normalized_shape
-        )
+        
+        if scalars is not None:
+            normalized_shape = scalars.shape[-1:]
+            outputs_s = torch.nn.functional.layer_norm(
+                scalars, normalized_shape=normalized_shape
+            )
+        else:
+            outputs_s = None
 
         return outputs_mv, outputs_s

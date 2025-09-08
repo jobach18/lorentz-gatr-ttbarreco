@@ -132,13 +132,18 @@ class TopRecoDataset(RecoDataset):
         # create list of torch_geometric.data.Data objects
         # drop zero-padded components
         self.data_list = []
-        metpt_as_scalar = True
+        metpt_as_scalar = False
         if metpt_as_scalar:
             metpt = kinematics[:,11,0]
             kinematics = kinematics[:,:-1,:]
         for i in range(kinematics.shape[0]):
             # drop zero-padded components
             fourmomenta = kinematics[i, ...]
+            if i ==1:
+                print('-'*30)
+                print('at dataset creation stage:')
+                print(f'the fourmomenta are {fourmomenta.shape}')
+                print('-'*30)
             targets_i = targets[i, ...].flatten()
         
             if metpt_as_scalar:

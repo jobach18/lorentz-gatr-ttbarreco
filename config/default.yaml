@@ -4,7 +4,7 @@ run_name: null
 base_dir: .
 
 seed: null
-debug: false
+debug: true
 
 warm_start_idx: null
 save: true

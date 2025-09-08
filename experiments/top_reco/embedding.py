@@ -92,6 +92,7 @@ def embed_tagging_data_into_ga(fourmomenta, scalars, ptr, cfg_data):
         ptr[1:] - ptr[:-1],
     )
     batch = get_batch_from_ptr(ptr)
+    #print(f'multivector shape at embedding is {multivectors.shape}')
     embedding = {
         "mv": multivectors,
         "s": scalars,

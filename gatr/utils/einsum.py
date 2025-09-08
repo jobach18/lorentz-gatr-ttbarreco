@@ -25,11 +25,18 @@ def cached_einsum(equation: str, *operands: torch.Tensor) -> torch.Tensor:
     https://github.com/pytorch/pytorch/blob/v1.13.0/torch/functional.py#L381.
     """
     op_shape = tuple(op.shape for op in operands)
-    path = _get_cached_path_for_equation_and_shapes(
-        equation=equation, op_shape=op_shape
-    )
-
-    return custom_einsum(equation, *operands, path=path)
+    try:
+        path = _get_cached_path_for_equation_and_shapes(
+            equation=equation, op_shape=op_shape
+        )
+        if path:  # Only use custom path if it's not empty
+            return custom_einsum(equation, *operands, path=path)
+        else:
+            # Fall back to standard torch.einsum
+            return torch.einsum(equation, *operands)
+    except Exception as e:
+        # Fall back to standard torch.einsum on any error
+        return torch.einsum(equation, *operands)
 
 
 @functools.lru_cache(maxsize=None)
@@ -37,8 +44,11 @@ def _get_cached_path_for_equation_and_shapes(
     equation: str, op_shape: Sequence[torch.Tensor]
 ) -> List[int]:
     """Provides caching of optimal path."""
-    tupled_path = opt_einsum.contract_path(
-        equation, *op_shape, optimize="optimal", shapes=True
-    )[0]
-
-    return [item for pair in tupled_path for item in pair]
+    try:
+        tupled_path = opt_einsum.contract_path(
+            equation, *op_shape, optimize="optimal", shapes=True
+        )[0]
+        return [item for pair in tupled_path for item in pair]
+    except Exception:
+        # Return empty path which will cause fallback to torch.einsum
+        return []

@@ -52,6 +52,7 @@ class RecoGATrWrapper(nn.Module):
 
     def forward(self, embedding):
         multivector = embedding["mv"].unsqueeze(0)
+        #print(f'at forward stage : {multivector.shape}')
         scalars = embedding["s"].unsqueeze(0)
 
         mask = xformers_sa_mask(embedding["batch"], materialize=not self.force_xformers)
@@ -61,7 +62,11 @@ class RecoGATrWrapper(nn.Module):
         logits = self.extract_from_ga(
             multivector_outputs
         )
-        scalar_outputs = self.extract_scalar(scalar_outputs)
+        try:
+            scalar_outputs = self.extract_scalar(scalar_outputs)
+        except:
+            #LOGGER.warning("Could not extract scalar outputs")
+            scalar_outputs = None
 
         return logits, scalar_outputs
 
