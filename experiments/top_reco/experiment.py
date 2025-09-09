@@ -165,9 +165,9 @@ class RecoExperiment(BaseExperiment):
                 result_temp["val"]["raw"]["true_pt"] = result_temp["val"]["raw"]["true_pt"].tolist()
                 result_temp["val"]["raw"]["pred_pt"] = result_temp["val"]["raw"]["pred_pt"].tolist()
                 
-                LOGGER.info(f"Creating result_{set_label}_lambda4.json.")
-                os.makedirs("results_to_notebook/lr_1e-4", exist_ok=True)
-                json_path = os.path.join("results_to_notebook/lr_1e-4", f"result_{set_label}_lambda4.json")
+                LOGGER.info(f"Creating result_{set_label}.json.")
+                os.makedirs("results_to_notebook/mse_symmetrized", exist_ok=True)
+                json_path = os.path.join("results_to_notebook/mse_symmetrized", f"result_{set_label}.json")
                 with open(json_path, "w") as json_file:
                     json.dump(result_temp, json_file, default=str)
 
@@ -292,7 +292,7 @@ class RecoExperiment(BaseExperiment):
                 "prediction": amp_pred,
                 "scalar_truth": amplitudes_scalar_truth_prepd,
                 "scalar_prediction": amplitudes_scalar_pred_prepd,
-                "inputs":amplitudes_lepton_prepd,
+                "input":amp_lepton,
                 "mse": mse_prepd,
                 "true_pt": true_pt,
                 "pred_pt": pred_pt,

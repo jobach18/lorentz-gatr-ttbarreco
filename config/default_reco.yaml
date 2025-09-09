@@ -16,7 +16,7 @@ training:
 
  force_xformers: false
  scalar_target: false
- lambdaloss: 10
+ lambdaloss: 1
 
 evaluation:
  batchsize: 128
